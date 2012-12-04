@@ -3770,7 +3770,8 @@ void Action_Main_Stop_Button_Pressed (void)
     g_object_set(uiaction, "sensitive", FALSE, NULL);
 }
 
-void ui_widget_set_sensitive (const gchar *menu, const gchar *action, gboolean sensitive)
+static void
+ui_widget_set_sensitive (const gchar *menu, const gchar *action, gboolean sensitive)
 {
     GtkAction *uiaction;
     gchar *path;
@@ -4475,7 +4476,8 @@ void Init_Load_Default_Dir (void)
 
 
 
-void Convert_P20_And_Undescore_Into_Spaces (GtkWidget *entry)
+static void
+Convert_P20_And_Underscore_Into_Spaces (GtkWidget *entry)
 {
     gchar *string = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
 
@@ -4485,7 +4487,8 @@ void Convert_P20_And_Undescore_Into_Spaces (GtkWidget *entry)
     g_free(string);
 }
 
-void Convert_Space_Into_Undescore (GtkWidget *entry)
+static void
+Convert_Space_Into_Underscore (GtkWidget *entry)
 {
     gchar *string = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
 
@@ -4494,7 +4497,8 @@ void Convert_Space_Into_Undescore (GtkWidget *entry)
     g_free(string);
 }
 
-void Convert_All_Uppercase (GtkWidget *entry)
+static void
+Convert_All_Uppercase (GtkWidget *entry)
 {
     gchar *string = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
 
@@ -4503,7 +4507,8 @@ void Convert_All_Uppercase (GtkWidget *entry)
     g_free(string);
 }
 
-void Convert_All_Downcase (GtkWidget *entry)
+static void
+Convert_All_Lowercase (GtkWidget *entry)
 {
     gchar *string = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
 
@@ -4512,7 +4517,8 @@ void Convert_All_Downcase (GtkWidget *entry)
     g_free(string);
 }
 
-void Convert_Letter_Uppercase (GtkWidget *entry)
+static void
+Convert_Letter_Uppercase (GtkWidget *entry)
 {
     gchar *string = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
 
@@ -4521,7 +4527,8 @@ void Convert_Letter_Uppercase (GtkWidget *entry)
     g_free(string);
 }
 
-void Convert_First_Letters_Uppercase (GtkWidget *entry)
+static void
+Convert_First_Letters_Uppercase (GtkWidget *entry)
 {
     gchar *string = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
 
@@ -4530,7 +4537,8 @@ void Convert_First_Letters_Uppercase (GtkWidget *entry)
     g_free(string);
 }
 
-void Convert_Remove_Space (GtkWidget *entry)
+static void
+Convert_Remove_Space (GtkWidget *entry)
 {
     gchar *string = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
 
@@ -4539,7 +4547,8 @@ void Convert_Remove_Space (GtkWidget *entry)
     g_free(string);
 }
 
-void Convert_Insert_Space (GtkWidget *entry)
+static void
+Convert_Insert_Space (GtkWidget *entry)
 {
     // FIX ME : we suppose that it will not grow more than 2 times its size...
     guint string_length = 2 * strlen(gtk_entry_get_text(GTK_ENTRY(entry)));
@@ -4552,7 +4561,8 @@ void Convert_Insert_Space (GtkWidget *entry)
     g_free(string);
 }
 
-void Convert_Only_One_Space (GtkWidget *entry)
+static void
+Convert_Only_One_Space (GtkWidget *entry)
 {
     gchar *string = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
 
@@ -4570,7 +4580,8 @@ Convert_Remove_All_Text (GtkWidget *entry)
 /*
  * Entry_Popup_Menu_Handler: show the popup menu when the third mouse button is pressed.
  */
-gboolean Entry_Popup_Menu_Handler (GtkMenu *menu, GdkEventButton *event)
+static gboolean
+Entry_Popup_Menu_Handler (GtkMenu *menu, GdkEventButton *event)
 {
     if (event && (event->type==GDK_BUTTON_PRESS) && (event->button==3))
     {
@@ -4616,14 +4627,14 @@ void Attach_Popup_Menu_To_Tag_Entries (GtkEntry *entry)
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(MenuItem),Image);
     gtk_menu_shell_append(GTK_MENU_SHELL(PopupMenu),MenuItem);
     g_signal_connect_swapped(G_OBJECT(MenuItem),"activate",
-        G_CALLBACK(Convert_P20_And_Undescore_Into_Spaces),G_OBJECT(entry));
+        G_CALLBACK(Convert_P20_And_Underscore_Into_Spaces),G_OBJECT(entry));
 
     MenuItem = gtk_image_menu_item_new_with_label(_("Convert ' ' to '_'"));
     Image = gtk_image_new_from_stock(GTK_STOCK_CONVERT,GTK_ICON_SIZE_MENU);
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(MenuItem),Image);
     gtk_menu_shell_append(GTK_MENU_SHELL(PopupMenu),MenuItem);
     g_signal_connect_swapped(G_OBJECT(MenuItem),"activate",
-        G_CALLBACK(Convert_Space_Into_Undescore),G_OBJECT(entry));
+        G_CALLBACK(Convert_Space_Into_Underscore),G_OBJECT(entry));
 
     /* Separator */
     MenuItem = gtk_menu_item_new();
@@ -4641,7 +4652,7 @@ void Attach_Popup_Menu_To_Tag_Entries (GtkEntry *entry)
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(MenuItem),Image);
     gtk_menu_shell_append(GTK_MENU_SHELL(PopupMenu),MenuItem);
     g_signal_connect_swapped(G_OBJECT(MenuItem),"activate",
-        G_CALLBACK(Convert_All_Downcase),G_OBJECT(entry));
+        G_CALLBACK(Convert_All_Lowercase),G_OBJECT(entry));
 
     MenuItem = gtk_image_menu_item_new_with_label(_("First letter uppercase"));
     Image = gtk_image_new_from_stock("easytag-first-letter-uppercase",GTK_ICON_SIZE_MENU);
@@ -4895,7 +4906,8 @@ void EasyTAG_Exit (void)
     exit(0);
 }
 
-void Quit_MainWindow_Confirmed (void)
+static void
+Quit_MainWindow_Confirmed (void)
 {
     // Save the configuration when exiting...
     Save_Changes_Of_UI();
@@ -4904,7 +4916,8 @@ void Quit_MainWindow_Confirmed (void)
     EasyTAG_Exit();
 }
 
-void Quit_MainWindow_Save_And_Quit (void)
+static void
+Quit_MainWindow_Save_And_Quit (void)
 {
     /* Save modified tags */
     if (Save_All_Files_With_Answer(FALSE) == -1)
