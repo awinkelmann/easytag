@@ -183,7 +183,6 @@ int main (int argc, char *argv[])
     gboolean created_settings;
     struct stat statbuf;
     //GError *error = NULL;
-    GdkPixbuf *pixbuf;
 
 
 #ifdef WIN32

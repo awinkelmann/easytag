@@ -1748,7 +1748,6 @@ gint Cddb_Write_Result_To_File (gint socket_id, gulong *bytes_read_total)
 {
     gchar *file_path = NULL;
     FILE  *file;
-    gint result;
 
     /* Cache directory was already created by Log_Print(). */
     file_path = g_build_filename (g_get_user_cache_dir (), PACKAGE_TARNAME,
