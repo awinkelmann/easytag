@@ -1060,6 +1060,7 @@ void Browser_List_Load_File_List (GList *etfilelist, ET_File *etfile_to_select)
                            LIST_FILE_ALBUM_ARTIST,  FileTag->album_artist,
 						   LIST_FILE_ALBUM,         FileTag->album,
                            LIST_FILE_YEAR,          FileTag->year,
+                           LIST_FILE_CD,            FileTag->disc_number,
                            LIST_FILE_TRACK,         track,
                            LIST_FILE_GENRE,         FileTag->genre,
                            LIST_FILE_COMMENT,       FileTag->comment,
@@ -1139,6 +1140,7 @@ void Browser_List_Refresh_Whole_List (void)
                            LIST_FILE_ALBUM_ARTIST,  FileTag->album_artist,
 						   LIST_FILE_ALBUM,         FileTag->album,
                            LIST_FILE_YEAR,          FileTag->year,
+                           LIST_FILE_CD,            FileTag->disc_number,
                            LIST_FILE_TRACK,         track,
                            LIST_FILE_GENRE,         FileTag->genre,
                            LIST_FILE_COMMENT,       FileTag->comment,
@@ -1295,6 +1297,7 @@ void Browser_List_Refresh_File_In_List (ET_File *ETFile)
                        LIST_FILE_ALBUM_ARTIST,  FileTag->album_artist,
 					   LIST_FILE_ALBUM,         FileTag->album,
                        LIST_FILE_YEAR,          FileTag->year,
+                       LIST_FILE_CD,            FileTag->disc_number,
                        LIST_FILE_TRACK,         track,
                        LIST_FILE_GENRE,         FileTag->genre,
                        LIST_FILE_COMMENT,       FileTag->comment,
@@ -3032,7 +3035,7 @@ GtkWidget *Create_Browser_Items (GtkWidget *parent)
     GtkWidget *PopupMenu;
     gchar *BrowserTree_Titles[] = {N_("Tree")};
     gchar *BrowserList_Titles[] = {N_("File Name"),N_("Title"),N_("Artist"),N_("Album Artist"),N_("Album"),
-                                   N_("Year"),N_("Track"),N_("Genre"),N_("Comment"),
+                                   N_("Year"),N_("CD"),N_("Track"),N_("Genre"),N_("Comment"),
                                    N_("Composer"),N_("Original Artist"),N_("Copyright"),
                                    N_("URL"),N_("Encoded By")};
     gchar *ArtistList_Titles[]  = {N_("Artist"),N_("# Albums"),N_("# Files")};
@@ -3372,26 +3375,27 @@ GtkWidget *Create_Browser_Items (GtkWidget *parent)
 
     /* The file list */
     fileListModel = gtk_list_store_new(LIST_COLUMN_COUNT,
-                                       G_TYPE_STRING,
-                                       G_TYPE_POINTER,
-                                       G_TYPE_INT,
-                                       G_TYPE_BOOLEAN,
-                                       G_TYPE_INT,
-                                       GDK_TYPE_COLOR,
-                                       GDK_TYPE_COLOR,
-                                       G_TYPE_STRING,
-                                       G_TYPE_STRING,
-                                       G_TYPE_STRING,
-                                       G_TYPE_STRING,
-                                       G_TYPE_STRING,
-                                       G_TYPE_STRING,
-                                       G_TYPE_STRING,
-                                       G_TYPE_STRING,
-                                       G_TYPE_STRING,
-                                       G_TYPE_STRING,
-                                       G_TYPE_STRING,
-                                       G_TYPE_STRING,
-                                       G_TYPE_STRING);
+                                       G_TYPE_STRING,		// File Name
+                                       G_TYPE_POINTER,		// File Pointer
+                                       G_TYPE_INT,			// File Key
+                                       G_TYPE_BOOLEAN,		// File OtherDir
+                                       G_TYPE_INT,			// Font Weight
+                                       GDK_TYPE_COLOR,		// Row Background
+                                       GDK_TYPE_COLOR,		// Row Foreground
+                                       G_TYPE_STRING,		// Tag Title
+                                       G_TYPE_STRING,		// Tag Artist
+                                       G_TYPE_STRING,		// Tag Album Artist
+                                       G_TYPE_STRING,		// Tag Album
+                                       G_TYPE_STRING,		// Tag Year
+                                       G_TYPE_STRING,		// Tag Disc Number / CD
+                                       G_TYPE_STRING,		// Tag Track
+                                       G_TYPE_STRING,		// Tag Genre
+                                       G_TYPE_STRING,		// Tag Comment
+                                       G_TYPE_STRING,		// Tag Composer
+                                       G_TYPE_STRING,		// Tag Orig Artist
+                                       G_TYPE_STRING,		// Tag Copyright
+                                       G_TYPE_STRING,		// Tag URL
+                                       G_TYPE_STRING);		// Tag Encoded By
 
     BrowserList = gtk_tree_view_new_with_model(GTK_TREE_MODEL(fileListModel));
     gtk_container_add(GTK_CONTAINER(ScrollWindowFileList), BrowserList);
@@ -3483,12 +3487,26 @@ GtkWidget *Create_Browser_Items (GtkWidget *parent)
                                         NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(BrowserList), column);
 
-    // Column for Track
+    // Column for Disc-Number / CD
     column = gtk_tree_view_column_new();
     renderer = gtk_cell_renderer_text_new();
     gtk_tree_view_column_pack_start(column, renderer, FALSE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
     gtk_tree_view_column_set_title(column, _(BrowserList_Titles[6]));
+    gtk_tree_view_column_set_attributes(column, renderer,
+                                        "text",           LIST_FILE_CD,
+                                        "weight",         LIST_FONT_WEIGHT,
+                                        "background-gdk", LIST_ROW_BACKGROUND,
+                                        "foreground-gdk", LIST_ROW_FOREGROUND,
+                                        NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(BrowserList), column);
+
+    // Column for Track
+    column = gtk_tree_view_column_new();
+    renderer = gtk_cell_renderer_text_new();
+    gtk_tree_view_column_pack_start(column, renderer, FALSE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
+    gtk_tree_view_column_set_title(column, _(BrowserList_Titles[7]));
     gtk_tree_view_column_set_attributes(column, renderer,
                                         "text",           LIST_FILE_TRACK,
                                         "weight",         LIST_FONT_WEIGHT,
@@ -3502,7 +3520,7 @@ GtkWidget *Create_Browser_Items (GtkWidget *parent)
     renderer = gtk_cell_renderer_text_new();
     gtk_tree_view_column_pack_start(column, renderer, FALSE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
-    gtk_tree_view_column_set_title(column, _(BrowserList_Titles[7]));
+    gtk_tree_view_column_set_title(column, _(BrowserList_Titles[8]));
     gtk_tree_view_column_set_attributes(column, renderer,
                                         "text",           LIST_FILE_GENRE,
                                         "weight",         LIST_FONT_WEIGHT,
@@ -3516,7 +3534,7 @@ GtkWidget *Create_Browser_Items (GtkWidget *parent)
     renderer = gtk_cell_renderer_text_new();
     gtk_tree_view_column_pack_start(column, renderer, FALSE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
-    gtk_tree_view_column_set_title(column, _(BrowserList_Titles[8]));
+    gtk_tree_view_column_set_title(column, _(BrowserList_Titles[9]));
     gtk_tree_view_column_set_attributes(column, renderer,
                                         "text",           LIST_FILE_COMMENT,
                                         "weight",         LIST_FONT_WEIGHT,
@@ -3530,7 +3548,7 @@ GtkWidget *Create_Browser_Items (GtkWidget *parent)
     renderer = gtk_cell_renderer_text_new();
     gtk_tree_view_column_pack_start(column, renderer, FALSE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
-    gtk_tree_view_column_set_title(column, _(BrowserList_Titles[9]));
+    gtk_tree_view_column_set_title(column, _(BrowserList_Titles[10]));
     gtk_tree_view_column_set_attributes(column, renderer,
                                         "text",           LIST_FILE_COMPOSER,
                                         "weight",         LIST_FONT_WEIGHT,
@@ -3544,7 +3562,7 @@ GtkWidget *Create_Browser_Items (GtkWidget *parent)
     renderer = gtk_cell_renderer_text_new();
     gtk_tree_view_column_pack_start(column, renderer, FALSE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
-    gtk_tree_view_column_set_title(column, _(BrowserList_Titles[10]));
+    gtk_tree_view_column_set_title(column, _(BrowserList_Titles[11]));
     gtk_tree_view_column_set_attributes(column, renderer,
                                         "text",           LIST_FILE_ORIG_ARTIST,
                                         "weight",         LIST_FONT_WEIGHT,
@@ -3558,7 +3576,7 @@ GtkWidget *Create_Browser_Items (GtkWidget *parent)
     renderer = gtk_cell_renderer_text_new();
     gtk_tree_view_column_pack_start(column, renderer, FALSE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
-    gtk_tree_view_column_set_title(column, _(BrowserList_Titles[11]));
+    gtk_tree_view_column_set_title(column, _(BrowserList_Titles[12]));
     gtk_tree_view_column_set_attributes(column, renderer,
                                         "text",           LIST_FILE_COPYRIGHT,
                                         "weight",         LIST_FONT_WEIGHT,
@@ -3572,7 +3590,7 @@ GtkWidget *Create_Browser_Items (GtkWidget *parent)
     renderer = gtk_cell_renderer_text_new();
     gtk_tree_view_column_pack_start(column, renderer, FALSE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
-    gtk_tree_view_column_set_title(column, _(BrowserList_Titles[12]));
+    gtk_tree_view_column_set_title(column, _(BrowserList_Titles[13]));
     gtk_tree_view_column_set_attributes(column, renderer,
                                         "text",           LIST_FILE_URL,
                                         "weight",         LIST_FONT_WEIGHT,
@@ -3586,7 +3604,7 @@ GtkWidget *Create_Browser_Items (GtkWidget *parent)
     renderer = gtk_cell_renderer_text_new();
     gtk_tree_view_column_pack_start(column, renderer, FALSE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
-    gtk_tree_view_column_set_title(column, _(BrowserList_Titles[13]));
+    gtk_tree_view_column_set_title(column, _(BrowserList_Titles[14]));
     gtk_tree_view_column_set_attributes(column, renderer,
                                         "text",           LIST_FILE_ENCODED_BY,
                                         "weight",         LIST_FONT_WEIGHT,
