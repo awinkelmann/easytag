@@ -211,8 +211,9 @@ struct _File_Mask_Item
 typedef struct _Scan_Mask_Item Scan_Mask_Item;
 struct _Scan_Mask_Item
 {
-    gchar  code;   // The code of the mask without % (ex: %a => a)
-    gchar *string; // The string found by the scanner for the code defined the line above
+    gchar	code;   // The code of the mask without % (ex: %a => a)
+    gint	length;	// The length, specified between % and the code | 0 for no
+    gchar	*string; // The string found by the scanner for the code defined the line above
 };
 
 
@@ -373,7 +374,7 @@ GList *Scan_Generate_New_Tag_From_Mask (ET_File *ETFile, gchar *mask)
     gchar *buf;
     gchar *separator;
     gchar *string;
-    gint  len, i, loop=0;
+    gint  len, i, loop=0, len_nr;
     gchar **mask_splitted;
     gchar **file_splitted;
     guint mask_splitted_number;
@@ -464,9 +465,23 @@ GList *Scan_Generate_New_Tag_From_Mask (ET_File *ETFile, gchar *mask)
              * Allocate a new iten for the fill_tag_list
              */
             mask_item = g_malloc0(sizeof(Scan_Mask_Item));
+    		mask_item->length = 0;
+
+            // Check if a length value is specified, for example "%1d" copies just one character to %d
+
+            len_nr = 0;
+        	while( isdigit( tmp[ 1 + len_nr] ) ) {
+        		len_nr++;
+        	}
+
+    		if ( len_nr > 0 ) {	// Got a length Attribute
+        		buf = g_strndup( &(tmp[1]), len_nr );
+        		mask_item->length = atoi( buf );
+        		g_free( buf );
+        	}
 
             // Get the code (used to determine the corresponding target entry)
-            mask_item->code = tmp[1];
+            mask_item->code = tmp[1 + len_nr];
 
             /*
              * Delete text before the code
@@ -477,7 +492,7 @@ GList *Scan_Generate_New_Tag_From_Mask (ET_File *ETFile, gchar *mask)
                 buf = g_strndup(mask_seq,len);
                 // We remove it in 'mask_seq'
                 mask_seq = mask_seq + len;
-                // Find the same text at the begining of 'file_seq' ?
+                // Find the same text at the beginning of 'file_seq' ?
                 if ( (strstr(file_seq,buf)) == file_seq )
                 {
                     file_seq = file_seq + len; // We remove it
@@ -489,12 +504,25 @@ GList *Scan_Generate_New_Tag_From_Mask (ET_File *ETFile, gchar *mask)
             }
 
             // Remove the current code into 'mask_seq'
-            mask_seq = mask_seq + 2;
+            mask_seq = mask_seq + 2 + len_nr;
 
             /*
              * Determine separator between two code or trailing text (after code)
              */
-            if ( mask_seq && strlen(mask_seq)>0 )
+
+            if ( mask_item->length > 0 ) {	// If length Attribute is given
+            	// Copy just the specified amount of characters to mask_item->string
+            	if ( file_seq ) {
+            		if ( strlen( file_seq ) >= mask_item->length ) {
+            			mask_item->string = g_strndup( file_seq, mask_item->length );
+            			file_seq = file_seq + mask_item->length;
+            		} else {
+            			mask_item->string = g_strdup( file_seq );
+            			file_seq = file_seq + strlen( file_seq );
+            		}
+            	}
+
+            } else if ( mask_seq && strlen(mask_seq)>0 )
             {
                 if ( (tmp=strchr(mask_seq,'%')) == NULL || strlen(tmp) < 2 )
                 {
@@ -2821,7 +2849,7 @@ void Open_ScannerWindow (gint scanner_type)
     LegendFrame = gtk_frame_new (_("Legend"));
     gtk_box_pack_start(GTK_BOX(ScanVBox),LegendFrame,FALSE,FALSE,0);
     /* Legend labels */
-    Table = gtk_table_new(3,3,FALSE);
+    Table = gtk_table_new(6,6,FALSE);
     gtk_container_add(GTK_CONTAINER(LegendFrame),Table);
     gtk_container_set_border_width(GTK_CONTAINER(Table),4);
     Label = gtk_label_new(_("%a : artist"));
@@ -2837,10 +2865,10 @@ void Open_ScannerWindow (gint scanner_type)
     gtk_table_attach_defaults(GTK_TABLE(Table),Label,0,1,3,4);
     gtk_misc_set_alignment(GTK_MISC(Label),0,0.5);
     Label = gtk_label_new(_("%p : composer"));
-    gtk_table_attach_defaults(GTK_TABLE(Table),Label,0,1,3,4);
+    gtk_table_attach_defaults(GTK_TABLE(Table),Label,0,1,4,5);
     gtk_misc_set_alignment(GTK_MISC(Label),0,0.5);
     Label = gtk_label_new(_("%r : copyright"));
-    gtk_table_attach_defaults(GTK_TABLE(Table),Label,0,1,4,5);
+    gtk_table_attach_defaults(GTK_TABLE(Table),Label,0,1,5,6);
     gtk_misc_set_alignment(GTK_MISC(Label),0,0.5);
     Label = gtk_label_new(_("%d : disc number"));
     gtk_table_attach_defaults(GTK_TABLE(Table),Label,1,2,0,1);
@@ -2871,6 +2899,9 @@ void Open_ScannerWindow (gint scanner_type)
     gtk_misc_set_alignment(GTK_MISC(Label),0,0.5);
     Label = gtk_label_new(_("%y : year"));
     gtk_table_attach_defaults(GTK_TABLE(Table),Label,2,3,4,5);
+    gtk_misc_set_alignment(GTK_MISC(Label),0,0.5);
+    Label = gtk_label_new(_("%12x : Assign only 12 Characters to x"));
+    gtk_table_attach_defaults(GTK_TABLE(Table),Label,1,2,5,6);
     gtk_misc_set_alignment(GTK_MISC(Label),0,0.5);
 
     /*
