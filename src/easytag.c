@@ -960,6 +960,24 @@ GtkWidget *Create_Tag_Area (void)
     Attach_Popup_Menu_To_Tag_Entries(GTK_ENTRY(EncodedByEntry));
     g_object_set_data(G_OBJECT(EncodedByEntry),"MButtonName",EncodedByMButton);
 
+    /* Compilation */
+    CompilationLabel = gtk_label_new(_("Compilation:"));
+    gtk_table_attach(GTK_TABLE(Table),CompilationLabel,0,1,12,13,GTK_FILL,GTK_FILL,TablePadding,TablePadding);
+    gtk_misc_set_alignment(GTK_MISC(CompilationLabel),1,0.5);
+
+    CompilationEntry = gtk_entry_new();
+    gtk_table_attach(GTK_TABLE(Table),CompilationEntry,1,10,12,13,
+                     GTK_EXPAND|GTK_FILL,GTK_EXPAND|GTK_FILL,TablePadding,TablePadding);
+
+    CompilationMButton = gtk_button_new();
+    gtk_widget_set_size_request(CompilationMButton,MButtonSize,MButtonSize);
+    gtk_table_attach(GTK_TABLE(Table),CompilationMButton,10,11,12,13,0,0,TablePadding,TablePadding);
+    g_signal_connect(G_OBJECT(CompilationMButton),"clicked", G_CALLBACK(Mini_Button_Clicked),NULL);
+    gtk_widget_set_tooltip_text(CompilationMButton,_("Tag selected files with this compilation value"));
+
+    Attach_Popup_Menu_To_Tag_Entries(GTK_ENTRY(CompilationEntry));
+    g_object_set_data(G_OBJECT(CompilationEntry),"MButtonName",CompilationMButton);
+
 
     // Managing of entries when pressing the Enter key
     g_signal_connect_swapped(G_OBJECT(TitleEntry),      "activate",G_CALLBACK(gtk_widget_grab_focus),G_OBJECT(ArtistEntry));
@@ -975,7 +993,8 @@ GtkWidget *Create_Tag_Area (void)
     g_signal_connect_swapped(G_OBJECT(OrigArtistEntry), "activate",G_CALLBACK(gtk_widget_grab_focus),G_OBJECT(CopyrightEntry));
     g_signal_connect_swapped(G_OBJECT(CopyrightEntry),  "activate",G_CALLBACK(gtk_widget_grab_focus),G_OBJECT(URLEntry));
     g_signal_connect_swapped(G_OBJECT(URLEntry),        "activate",G_CALLBACK(gtk_widget_grab_focus),G_OBJECT(EncodedByEntry));
-    g_signal_connect_swapped(G_OBJECT(EncodedByEntry),  "activate",G_CALLBACK(gtk_widget_grab_focus),G_OBJECT(AlbumArtistEntry));
+    g_signal_connect_swapped(G_OBJECT(EncodedByEntry),  "activate",G_CALLBACK(gtk_widget_grab_focus),G_OBJECT(CompilationEntry));
+    g_signal_connect_swapped(G_OBJECT(CompilationEntry),"activate",G_CALLBACK(gtk_widget_grab_focus),G_OBJECT(AlbumArtistEntry));
     g_signal_connect_swapped(G_OBJECT(AlbumArtistEntry),"activate",G_CALLBACK(gtk_widget_grab_focus),G_OBJECT(TitleEntry));
 
     // Set focus chain
@@ -1010,6 +1029,8 @@ GtkWidget *Create_Tag_Area (void)
     focusable_widgets_list = g_list_prepend(focusable_widgets_list,URLMButton);
     focusable_widgets_list = g_list_prepend(focusable_widgets_list,EncodedByEntry);
     focusable_widgets_list = g_list_prepend(focusable_widgets_list,EncodedByMButton);
+    focusable_widgets_list = g_list_prepend(focusable_widgets_list,CompilationEntry);
+    focusable_widgets_list = g_list_prepend(focusable_widgets_list,CompilationMButton);
     focusable_widgets_list = g_list_prepend(focusable_widgets_list,TitleEntry); // To loop to the beginning
     /* More efficient than using g_list_append(), which must traverse the
      * whole list. */
@@ -1569,6 +1590,25 @@ void Mini_Button_Clicked (GObject *object)
             msg = g_strdup_printf(_("Selected files tagged with encoder name '%s'."),string_to_set);
         else
             msg = g_strdup(_("Removed encoder name from selected files."));
+    }
+    else if (object==G_OBJECT(CompilationMButton))
+    {
+        string_to_set = gtk_editable_get_chars(GTK_EDITABLE(CompilationEntry),0,-1);
+        while (etfilelist)
+        {
+            etfile = (ET_File *)etfilelist->data;
+            FileTag = ET_File_Tag_Item_New();
+            ET_Copy_File_Tag_Item(etfile,FileTag);
+            ET_Set_Field_File_Tag_Item(&FileTag->compilation,string_to_set);
+            ET_Manage_Changes_Of_File_Data(etfile,NULL,FileTag);
+
+            if (!etfilelist->next) break;
+            etfilelist = g_list_next(etfilelist);
+        }
+        if (string_to_set != NULL && g_utf8_strlen(string_to_set, -1)>0)
+            msg = g_strdup_printf(_("Selected files tagged with compilation value '%s'."),string_to_set);
+        else
+            msg = g_strdup(_("Removed compilation value from selected files."));
     }
     else if (object==G_OBJECT(PictureMButton))
     {
@@ -4142,6 +4182,9 @@ void Tag_Area_Display_Controls (ET_File *ETFile)
                 gtk_widget_hide(GTK_WIDGET(EncodedByLabel));
                 gtk_widget_hide(GTK_WIDGET(EncodedByEntry));
                 gtk_widget_hide(GTK_WIDGET(EncodedByMButton));
+                gtk_widget_hide(GTK_WIDGET(CompilationLabel));
+                gtk_widget_hide(GTK_WIDGET(CompilationEntry));
+                gtk_widget_hide(GTK_WIDGET(CompilationMButton));
                 gtk_widget_hide(GTK_WIDGET(PictureLabel));
                 gtk_widget_hide(GTK_WIDGET(PictureScrollWindow));
                 gtk_widget_hide(GTK_WIDGET(PictureMButton));
@@ -4169,6 +4212,9 @@ void Tag_Area_Display_Controls (ET_File *ETFile)
                 gtk_widget_show(GTK_WIDGET(EncodedByLabel));
                 gtk_widget_show(GTK_WIDGET(EncodedByEntry));
                 gtk_widget_show(GTK_WIDGET(EncodedByMButton));
+                gtk_widget_show(GTK_WIDGET(CompilationLabel));
+                gtk_widget_show(GTK_WIDGET(CompilationEntry));
+                gtk_widget_show(GTK_WIDGET(CompilationMButton));
                 gtk_widget_show(GTK_WIDGET(PictureLabel));
                 gtk_widget_show(GTK_WIDGET(PictureScrollWindow));
                 gtk_widget_show(GTK_WIDGET(PictureMButton));
@@ -4369,6 +4415,9 @@ void Tag_Area_Display_Controls (ET_File *ETFile)
             gtk_widget_hide(GTK_WIDGET(EncodedByLabel));
             gtk_widget_hide(GTK_WIDGET(EncodedByEntry));
             gtk_widget_hide(GTK_WIDGET(EncodedByMButton));
+            gtk_widget_hide(GTK_WIDGET(CompilationLabel));
+            gtk_widget_hide(GTK_WIDGET(CompilationEntry));
+            gtk_widget_hide(GTK_WIDGET(CompilationMButton));
             gtk_widget_hide(GTK_WIDGET(PictureLabel));
             gtk_widget_hide(GTK_WIDGET(PictureScrollWindow));
             gtk_widget_hide(GTK_WIDGET(PictureMButton));
@@ -4407,6 +4456,7 @@ void Clear_Tag_Entry_Fields (void)
     gtk_entry_set_text(GTK_ENTRY(CopyrightEntry),                   "");
     gtk_entry_set_text(GTK_ENTRY(URLEntry),                         "");
     gtk_entry_set_text(GTK_ENTRY(EncodedByEntry),                   "");
+    gtk_entry_set_text(GTK_ENTRY(CompilationEntry),                 "");
     PictureEntry_Clear();
 }
 

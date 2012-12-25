@@ -92,6 +92,7 @@ GtkWidget    *OrigArtistEntry;
 GtkWidget    *CopyrightEntry;
 GtkWidget    *URLEntry;
 GtkWidget    *EncodedByEntry;
+GtkWidget    *CompilationEntry;
 GtkWidget    *PictureEntryView;
 GtkListStore *PictureEntryModel;
 // Labels
@@ -109,6 +110,7 @@ GtkWidget    *OrigArtistLabel;
 GtkWidget    *CopyrightLabel;
 GtkWidget    *URLLabel;
 GtkWidget    *EncodedByLabel;
+GtkWidget    *CompilationLabel;
 GtkWidget    *PictureLabel;
 // Mini buttons
 GtkWidget    *TitleMButton;
@@ -127,6 +129,7 @@ GtkWidget    *OrigArtistMButton;
 GtkWidget    *CopyrightMButton;
 GtkWidget    *URLMButton;
 GtkWidget    *EncodedByMButton;
+GtkWidget    *CompilationMButton;
 GtkWidget    *PictureMButton;
 
 // Other for picture

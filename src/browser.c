@@ -1069,6 +1069,7 @@ void Browser_List_Load_File_List (GList *etfilelist, ET_File *etfile_to_select)
                            LIST_FILE_COPYRIGHT,     FileTag->copyright,
                            LIST_FILE_URL,           FileTag->url,
                            LIST_FILE_ENCODED_BY,    FileTag->encoded_by,
+                           LIST_FILE_COMPILATION,   FileTag->compilation,
                            -1);
         g_free(basename_utf8);
         g_free(track);
@@ -1149,6 +1150,7 @@ void Browser_List_Refresh_Whole_List (void)
                            LIST_FILE_COPYRIGHT,     FileTag->copyright,
                            LIST_FILE_URL,           FileTag->url,
                            LIST_FILE_ENCODED_BY,    FileTag->encoded_by,
+                           LIST_FILE_COMPILATION,   FileTag->compilation,
                            -1);
         g_free(current_basename_utf8);
         g_free(track);
@@ -1306,6 +1308,7 @@ void Browser_List_Refresh_File_In_List (ET_File *ETFile)
                        LIST_FILE_COPYRIGHT,     FileTag->copyright,
                        LIST_FILE_URL,           FileTag->url,
                        LIST_FILE_ENCODED_BY,    FileTag->encoded_by,
+                       LIST_FILE_COMPILATION,   FileTag->compilation,
                        -1);
     g_free(current_basename_utf8);
     g_free(track);
@@ -3037,7 +3040,7 @@ GtkWidget *Create_Browser_Items (GtkWidget *parent)
     gchar *BrowserList_Titles[] = {N_("File Name"),N_("Title"),N_("Artist"),N_("Album Artist"),N_("Album"),
                                    N_("Year"),N_("CD"),N_("Track"),N_("Genre"),N_("Comment"),
                                    N_("Composer"),N_("Original Artist"),N_("Copyright"),
-                                   N_("URL"),N_("Encoded By")};
+                                   N_("URL"),N_("Encoded By"),N_("Compilation")};
     gchar *ArtistList_Titles[]  = {N_("Artist"),N_("# Albums"),N_("# Files")};
     gchar *AlbumList_Titles[]   = {N_("Album"),N_("# Files")};
 
@@ -3395,7 +3398,8 @@ GtkWidget *Create_Browser_Items (GtkWidget *parent)
                                        G_TYPE_STRING,		// Tag Orig Artist
                                        G_TYPE_STRING,		// Tag Copyright
                                        G_TYPE_STRING,		// Tag URL
-                                       G_TYPE_STRING);		// Tag Encoded By
+                                       G_TYPE_STRING,		// Tag Encoded By
+    								   G_TYPE_STRING);		// Tag Compilation
 
     BrowserList = gtk_tree_view_new_with_model(GTK_TREE_MODEL(fileListModel));
     gtk_container_add(GTK_CONTAINER(ScrollWindowFileList), BrowserList);
@@ -3607,6 +3611,20 @@ GtkWidget *Create_Browser_Items (GtkWidget *parent)
     gtk_tree_view_column_set_title(column, _(BrowserList_Titles[14]));
     gtk_tree_view_column_set_attributes(column, renderer,
                                         "text",           LIST_FILE_ENCODED_BY,
+                                        "weight",         LIST_FONT_WEIGHT,
+                                        "background-gdk", LIST_ROW_BACKGROUND,
+                                        "foreground-gdk", LIST_ROW_FOREGROUND,
+                                        NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(BrowserList), column);
+
+    // Column for Compilation
+    column = gtk_tree_view_column_new();
+    renderer = gtk_cell_renderer_text_new();
+    gtk_tree_view_column_pack_start(column, renderer, FALSE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
+    gtk_tree_view_column_set_title(column, _(BrowserList_Titles[15]));
+    gtk_tree_view_column_set_attributes(column, renderer,
+                                        "text",           LIST_FILE_COMPILATION,
                                         "weight",         LIST_FONT_WEIGHT,
                                         "background-gdk", LIST_ROW_BACKGROUND,
                                         "foreground-gdk", LIST_ROW_FOREGROUND,

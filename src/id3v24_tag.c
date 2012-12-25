@@ -392,6 +392,12 @@ gboolean Id3tag_Read_File_Tag (gchar *filename, File_Tag *FileTag)
         }
     }
 
+    /*********************
+     * Compilation (TCMP)*
+     *********************/
+    if ( (frame = id3_tag_findframe(tag, "TCMP", 0)) )
+        update |= libid3tag_Get_Frame_Str(frame, ~0, &FileTag->compilation);
+
     /******************
      * Picture (APIC) *
      ******************/
@@ -967,6 +973,11 @@ gboolean Id3tag_Write_File_v24Tag (ET_File *ETFile)
     etag_set_tags(FileTag->encoded_by, "TENC", ID3_FIELD_TYPE_STRINGLIST, NULL, v2tag, &strip_tags);
     if (v2tag)
         Id3tag_delete_txxframes(v2tag, EASYTAG_STRING_ENCODEDBY, 0);
+
+    /***************
+     * Compilation *
+     ***************/
+    etag_set_tags(FileTag->compilation, "TCMP", ID3_FIELD_TYPE_STRINGLIST, NULL, v2tag, &strip_tags);
 
     /***********
      * Picture *

@@ -389,6 +389,7 @@ void ET_Initialize_File_Tag_Item (File_Tag *FileTag)
         FileTag->copyright   = NULL;
         FileTag->url         = NULL;
         FileTag->encoded_by  = NULL;
+        FileTag->compilation = NULL;
         FileTag->picture     = NULL;
         FileTag->other       = NULL;
     }
@@ -2166,6 +2167,7 @@ gboolean ET_Free_File_Tag_Item (File_Tag *FileTag)
     g_free(FileTag->orig_artist);
     g_free(FileTag->copyright);
     g_free(FileTag->url);
+    g_free(FileTag->compilation);
     g_free(FileTag->encoded_by);
     Picture_Free(FileTag->picture);
     // Free list of other fields
@@ -2440,6 +2442,15 @@ gboolean ET_Copy_File_Tag_Item (ET_File *ETFile, File_Tag *FileTag)
     {
         g_free(FileTag->encoded_by);
         FileTag->encoded_by = NULL;
+    }
+
+    if (FileTagCur->compilation)
+    {
+        FileTag->compilation = g_strdup(FileTagCur->compilation);
+    }else
+    {
+        g_free(FileTag->compilation);
+        FileTag->compilation = NULL;
     }
 
     if (FileTagCur->picture)
@@ -2944,6 +2955,15 @@ gboolean ET_Display_File_Tag_To_UI (ET_File *ETFile)
         g_free(tmp);
     }else
         gtk_entry_set_text(GTK_ENTRY(EncodedByEntry),"");
+
+    /* Show Compilation */
+    if (FileTag && FileTag->compilation)
+    {
+        gchar *tmp = Try_To_Validate_Utf8_String(FileTag->compilation);
+        gtk_entry_set_text(GTK_ENTRY(CompilationEntry), tmp);
+        g_free(tmp);
+    }else
+        gtk_entry_set_text(GTK_ENTRY(CompilationEntry),"");
 
     /* Show picture */
     PictureEntry_Clear();
@@ -3487,6 +3507,18 @@ gboolean ET_Save_File_Tag_From_UI (File_Tag *FileTag)
         g_free(buffer);
     }
 
+    /* Compilation */
+    buffer = g_strdup(gtk_entry_get_text(GTK_ENTRY(CompilationEntry)));
+    Strip_String(buffer);
+
+    if ( g_utf8_strlen(buffer, -1) > 0 )
+        FileTag->compilation = buffer;
+    else
+    {
+        FileTag->compilation = NULL;
+        g_free(buffer);
+    }
+
     /* Picture */
     {
         Picture *pic, *prev_pic = NULL;
@@ -3706,6 +3738,15 @@ gboolean ET_Save_File_Tag_Internal (ET_File *ETFile, File_Tag *FileTag)
         FileTag->encoded_by = NULL;
     }
 
+    /* Compilation */
+    if ( FileTagCur->compilation && g_utf8_strlen(FileTagCur->compilation, -1)>0 )
+    {
+        FileTag->compilation = g_strdup(FileTagCur->compilation);
+        Strip_String(FileTag->compilation);
+    } else
+    {
+        FileTag->compilation = NULL;
+    }
 
     /* Picture */
     if(FileTagCur->picture)
@@ -4074,6 +4115,11 @@ gboolean ET_Detect_Changes_Of_File_Tag (File_Tag *FileTag1, File_Tag *FileTag2)
     if ( FileTag1->encoded_by && !FileTag2->encoded_by && g_utf8_strlen(FileTag1->encoded_by, -1)>0 ) return TRUE;
     if (!FileTag1->encoded_by &&  FileTag2->encoded_by && g_utf8_strlen(FileTag2->encoded_by, -1)>0 ) return TRUE;
     if ( FileTag1->encoded_by &&  FileTag2->encoded_by && g_utf8_collate(FileTag1->encoded_by,FileTag2->encoded_by)!=0 ) return TRUE;
+
+    /* Compilation */
+    if ( FileTag1->compilation && !FileTag2->compilation && g_utf8_strlen(FileTag1->compilation, -1)>0 ) return TRUE;
+    if (!FileTag1->compilation &&  FileTag2->compilation && g_utf8_strlen(FileTag2->compilation, -1)>0 ) return TRUE;
+    if ( FileTag1->compilation &&  FileTag2->compilation && g_utf8_collate(FileTag1->compilation,FileTag2->compilation)!=0 ) return TRUE;
 
     /* Picture */
     pic1 = FileTag1->picture;
@@ -4857,6 +4903,7 @@ void ET_Debug_Print_File_List (GList *ETFileList, gchar *file, gint line, gchar 
             g_print("|    |-> copyright   : '%s'\n",((File_Tag *)filetaglist->data)->copyright   ? ((File_Tag *)filetaglist->data)->copyright    : "");
             g_print("|    |-> url         : '%s'\n",((File_Tag *)filetaglist->data)->url         ? ((File_Tag *)filetaglist->data)->url          : "");
             g_print("|    |-> encoded_by  : '%s'\n",((File_Tag *)filetaglist->data)->encoded_by  ? ((File_Tag *)filetaglist->data)->encoded_by   : "");
+            g_print("|    |-> compilation : '%s'\n",((File_Tag *)filetaglist->data)->compilation ? ((File_Tag *)filetaglist->data)->compilation  : "");
 
             filetaglist = filetaglist->next;
             ftl_item++;

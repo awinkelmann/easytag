@@ -196,6 +196,7 @@ struct _File_Tag
     gchar *copyright;      /* Copyright */
     gchar *url;            /* URL */
     gchar *encoded_by;     /* Encoded by */
+    gchar *compilation;		/* Compilation Flag (TCMP) used by Amarok */
     Picture *picture;      /* Picture */
     GList *other;          /* List of unsupported fields (used for ogg only) */
 };
