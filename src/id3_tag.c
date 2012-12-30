@@ -73,7 +73,7 @@ gboolean Id3tag_Check_If_File_Is_Corrupted (gchar *filename);
 
 gboolean Id3tag_Check_If_Id3lib_Is_Bugged (void);
 
-
+gboolean Id3tag_Write_File_v23Tag (ET_File *ETFile);
 
 /*************
  * Functions *
@@ -1252,28 +1252,31 @@ gboolean Id3tag_Check_If_File_Is_Corrupted (gchar *filename)
  */
 gboolean Id3tag_Check_If_Id3lib_Is_Bugged (void)
 {
-    FILE *file;
+    gint fd;
     guchar tmp[16] = {0xFF, 0xFB, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     ID3Tag *id3_tag = NULL;
-    gchar *filename;
     gchar *result = NULL;
     ID3Frame *id3_frame;
     gboolean use_unicode;
 
+    // g_mkstemp modifies the filename
+    gchar* filename = g_strdup("easytagXXXXXX.mp3");
 
     // Create a temporary file
-    if ((file = g_mkstemp ("easytagXXXXXX.mp3")) == NULL)
+	if ((fd = g_mkstemp( filename )) == -1 )
     {
         gchar *filename_utf8 = filename_to_display(filename);
         Log_Print (LOG_ERROR, _("ERROR while opening file: '%s' (%s)"),
                    filename_utf8, g_strerror(errno));
         g_free (filename_utf8);
+        g_free( filename );
         return FALSE;
     }
-    // Set data in the file
-    fwrite(&tmp,16,1,file);
-    fclose(file);
+
+	// Set data in the file
+    write( fd, &tmp,16 );
+    close( fd );
 
     // Save state of switches as we must force to Unicode before writting
     use_unicode = FILE_WRITING_ID3V2_USE_UNICODE_CHARACTER_SET;
@@ -1288,7 +1291,7 @@ gboolean Id3tag_Check_If_Id3lib_Is_Bugged (void)
     // Use a Chinese character instead of the latin-1 character as in Id3tag_Set_Field()
     // we try to convert the string to ISO-8859-1 even in the Unicode mode.
     //Id3tag_Set_Field(id3_frame, ID3FN_TEXT, "é"); // This latin-1 character is written in Unicode as 'E9 FF' instead of 'E9 00' if bugged
-    Id3tag_Set_Field(id3_frame, ID3FN_TEXT, "�°"); // This Chinese character is written in Unicode as 'FF FE B0 FF' instead of 'FF FE B0 30' if bugged
+    Id3tag_Set_Field(id3_frame, ID3FN_TEXT, "�°"); // This Chinese character is written in Unicode as 'FF FE B0 FF' instead of 'FF FE B0 30' if bugged
 
     // Update the tag
     ID3Tag_UpdateByTagType(id3_tag,ID3TT_ID3V2);
@@ -1307,10 +1310,11 @@ gboolean Id3tag_Check_If_Id3lib_Is_Bugged (void)
 
     ID3Tag_Delete(id3_tag);
     remove(filename);
+    g_free( filename );
 
     // Same string found? if yes => not bugged
     //if ( result && strcmp(result,"é")!=0 )
-    if ( result && strcmp(result,"�°")!=0 )
+    if ( result && strcmp(result,"�°")!=0 )
     {
         return TRUE;
     }
