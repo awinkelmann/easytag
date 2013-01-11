@@ -73,7 +73,7 @@ gboolean Id3tag_Check_If_File_Is_Corrupted (gchar *filename);
 
 gboolean Id3tag_Check_If_Id3lib_Is_Bugged (void);
 
-gboolean Id3tag_Write_File_v23Tag (ET_File *ETFile);
+static gboolean Id3tag_Write_File_v23Tag (ET_File *ETFile);
 
 /*************
  * Functions *
