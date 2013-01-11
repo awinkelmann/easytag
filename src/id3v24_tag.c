@@ -79,10 +79,9 @@ static int    libid3tag_Get_Frame_Str   (const struct id3_frame *frame, unsigned
 static void   Id3tag_delete_frames      (struct id3_tag *tag, const gchar *name, int start);
 static void   Id3tag_delete_txxframes   (struct id3_tag *tag, const gchar *param1, int start);
 static struct id3_frame *Id3tag_find_and_create_frame    (struct id3_tag *tag, const gchar *name);
-static struct id3_frame *Id3tag_find_and_create_txxframe (struct id3_tag *tag, const gchar *param1);
 static int    id3taglib_set_field       (struct id3_frame *frame, const gchar *str, enum id3_field_type type, int num, int clear, int id3v1);
 static int    etag_set_tags             (const gchar *str, const char *frame_name, enum id3_field_type field_type, struct id3_tag *v1tag, struct id3_tag *v2tag, gboolean *strip_tags);
-static int    etag_write_tags           (const gchar *filename, const struct id3_tag *v1tag, const struct id3_tag *v2tag, gboolean strip_tags);
+static int    etag_write_tags           (const gchar *filename, struct id3_tag *v1tag, struct id3_tag *v2tag, gboolean strip_tags);
 
 /*************
  * Functions *
@@ -745,6 +744,7 @@ libid3tag_Get_Frame_Str(const struct id3_frame *frame, unsigned etag_field_type,
 
                     free(tmpstr2);
                 }
+                break;
 
             default:
                 break;
@@ -1129,6 +1129,12 @@ Id3tag_find_and_create_frame (struct id3_tag *tag, const gchar *name)
  * with first string parameter (name) 'param'
  * create new if not found
  */
+
+/*
+ * Unused Function
+ * Safe to delete?
+ *
+
 static struct id3_frame *
 Id3tag_find_and_create_txxframe (struct id3_tag *tag, const gchar *param1)
 {
@@ -1164,6 +1170,8 @@ Id3tag_find_and_create_txxframe (struct id3_tag *tag, const gchar *param1)
 
     return frame;
 }
+
+*/
 
 static int
 id3taglib_set_field(struct id3_frame *frame,
@@ -1364,8 +1372,8 @@ etag_set_tags (const gchar *str,
 
 static int
 etag_write_tags (const gchar *filename, 
-                 const struct id3_tag *v1tag, 
-                 const struct id3_tag *v2tag, 
+                 struct id3_tag *v1tag,
+                 struct id3_tag *v2tag,
                  gboolean strip_tags)
 {
     id3_byte_t *v1buf, *v2buf;

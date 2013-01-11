@@ -1264,9 +1264,6 @@ gboolean Id3tag_Check_If_Id3lib_Is_Bugged (void)
     gboolean use_unicode;
     gssize count;
 
-    // g_mkstemp modifies the filename
-    gchar* filename = g_strdup("easytagXXXXXX.mp3");
-
     /* Create a temporary file. */
     file = g_file_new_tmp ("easytagXXXXXX.mp3", &ostream, &error);
     if (file)

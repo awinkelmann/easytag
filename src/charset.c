@@ -699,4 +699,6 @@ Charset_Get_Name_From_Title (const gchar *charset_title)
             return charset_trans_array[i].charset_name;
         }
     }
+
+    return "";
 }

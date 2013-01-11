@@ -137,8 +137,6 @@ static void Browser_Tree_Set_Node_Visible (GtkWidget *directoryView,
                                            GtkTreePath *path);
 static void Browser_List_Set_Row_Visible (GtkTreeModel *treeModel,
                                           GtkTreeIter *rowIter);
-void        Browser_Tree_Disable          (void);
-void        Browser_Tree_Enable           (void);
 static void Browser_Tree_Initialize (void);
 static gboolean Browser_Tree_Node_Selected (GtkTreeSelection *selection,
                                             gpointer user_data);
@@ -151,8 +149,6 @@ static void Browser_Tree_Handle_Rename (GtkTreeIter *parentnode,
 static gint Browser_List_Key_Press        (GtkWidget *list, GdkEvent *event, gpointer data);
 static gboolean Browser_List_Button_Press (GtkTreeView *treeView,
                                            GdkEventButton *event);
-void        Browser_List_Disable          (void);
-void        Browser_List_Enable           (void);
 static void Browser_List_Row_Selected (GtkTreeSelection * selection,
                                        gpointer data);
 static void Browser_List_Set_Row_Appearance (GtkTreeIter *iter);
@@ -165,8 +161,6 @@ void        Browser_List_Unselect_All_Files     (void);
 void        Browser_List_Invert_File_Selection  (void);
 
 static void Browser_Entry_Activated (void);
-void        Browser_Entry_Disable   (void);
-void        Browser_Entry_Enable    (void);
 
 static void Browser_Parent_Button_Clicked (void);
 
@@ -187,9 +181,13 @@ void        Browser_Load_Home_Directory    (void);
 void        Browser_Load_Default_Directory (void);
 void        Browser_Reload_Directory       (void);
 
+#ifdef WIN32
+
 static gboolean Browser_Win32_Get_Drive_Root (gchar *drive,
                                               GtkTreeIter *rootNode,
                                               GtkTreePath **rootPath);
+
+#endif
 
 static gboolean check_for_subdir   (gchar *path);
 
@@ -854,6 +852,7 @@ Browser_Tree_Node_Selected (GtkTreeSelection *selection, gpointer user_data)
     return FALSE;
 }
 
+#ifdef WIN32
 
 static gboolean
 Browser_Win32_Get_Drive_Root (gchar *drive, GtkTreeIter *rootNode, GtkTreePath **rootPath)
@@ -889,6 +888,7 @@ Browser_Win32_Get_Drive_Root (gchar *drive, GtkTreeIter *rootNode, GtkTreePath *
     return TRUE;
 }
 
+#endif
 
 /*
  * Browser_Tree_Select_Dir: Select the directory corresponding to the 'path' in

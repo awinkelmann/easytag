@@ -134,7 +134,6 @@ static void Display_Usage (void);
 
 static void Init_Load_Default_Dir (void);
 static void EasyTAG_Exit (void);
-void Quit_MainWindow_Ok_Button (void);
 
 static GList *Read_Directory_Recursively (GList *file_list, const gchar *path,
                                           gboolean recurse);
@@ -187,7 +186,6 @@ int main (int argc, char *argv[])
 {
     GtkWidget *MainVBox;
     GtkWidget *HBox, *VBox;
-    gboolean created_settings;
     struct stat statbuf;
     //GError *error = NULL;
 
@@ -240,7 +238,12 @@ int main (int argc, char *argv[])
 
 
     /* Create all config files */
-    created_settings = Setting_Create_Files();
+    if ( FALSE == Setting_Create_Files())
+    {
+        Log_Print(LOG_WARNING,_("Unable to create Directory for Easytag"));
+        /* Shall we leave/end ET here? */
+    }
+
     /* Load Config */
     Init_Config_Variables();
     Read_Config();
@@ -2913,6 +2916,7 @@ Write_File_Tag (ET_File *ETFile, gboolean hide_msgbox)
 #endif
         default:
             msg = g_strdup (g_strerror (errno));
+            break;
     }
 
     msg1 = g_strdup_printf(_("Cannot write tag in file '%s' (%s)"),
@@ -3055,7 +3059,7 @@ Rename_File (ET_File *ETFile, gboolean hide_msgbox)
     gchar *cur_basename_utf8 = g_path_get_basename(cur_filename_utf8); // Only filename
     gchar *new_basename_utf8 = g_path_get_basename(new_filename_utf8);
     gint   fd_tmp;
-    gchar *msg, *msg1;
+    gchar *msg;
     gchar *dirname_cur;
     gchar *dirname_new;
     gchar *dirname_cur_utf8;
@@ -3187,7 +3191,6 @@ Rename_File (ET_File *ETFile, gboolean hide_msgbox)
     {
         if (!Make_Dir(dirname_cur,dirname_new))
         {
-            gchar *msg;
             GtkWidget *msgdialog;
 
             /* Renaming file has failed, but we try to set the initial name */
@@ -3238,7 +3241,6 @@ Rename_File (ET_File *ETFile, gboolean hide_msgbox)
         /* Remove the of directory (check automatically if it is empty) */
         if (!Remove_Dir(dirname_cur,dirname_new))
         {
-            gchar *msg;
             GtkWidget *msgdialog;
 
             /* Removing directories failed */
@@ -3331,7 +3333,6 @@ Rename_File (ET_File *ETFile, gboolean hide_msgbox)
             }
         }else
         {
-            gchar *msg;
             GtkWidget *msgdialog;
 
             /* Moving file has failed */
@@ -3373,8 +3374,6 @@ Rename_File (ET_File *ETFile, gboolean hide_msgbox)
         /* Renaming file has failed, but we try to set the initial name */
         rename(tmp_filename,cur_filename);
 
-        msg1 = g_strdup_printf(_("Cannot rename file '%s' to '%s'. (%s)"),
-                              cur_basename_utf8,new_basename_utf8,g_strerror(errno));
         if (!hide_msgbox)
         {
             msgdialog = gtk_message_dialog_new(GTK_WINDOW(MainWindow),
@@ -3418,7 +3417,6 @@ Delete_File (ET_File *ETFile, gboolean multiple_files)
     GtkWidget *msgdialog;
     GtkWidget *msgdialog_check_button = NULL;
     gchar *cur_filename;
-    gchar *cur_filename_utf8;
     gchar *basename_utf8;
     gint response;
     gint stop_loop;
@@ -3427,7 +3425,6 @@ Delete_File (ET_File *ETFile, gboolean multiple_files)
 
     // Filename of the file to delete
     cur_filename      = ((File_Name *)(ETFile->FileNameCur)->data)->value;
-    cur_filename_utf8 = ((File_Name *)(ETFile->FileNameCur)->data)->value_utf8;
     basename_utf8 = g_path_get_basename(cur_filename);
 
     /*
@@ -3611,9 +3608,7 @@ gboolean Read_Directory (gchar *path_real)
         // Message if the directory doesn't exist...
         GtkWidget *msgdialog;
         gchar *path_utf8 = filename_to_display(path_real);
-        gchar *msg;
 
-        msg = g_strdup_printf(_("Can't read directory:\n'%s'\n(%s)"),path_utf8,g_strerror(errno));
         msgdialog = gtk_message_dialog_new(GTK_WINDOW(MainWindow),
                                            GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
                                            GTK_MESSAGE_ERROR,
