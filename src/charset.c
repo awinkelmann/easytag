@@ -381,17 +381,18 @@ gchar *convert_string (const gchar *string, const gchar *from_codeset,
 {
     return convert_string_1(string, -1, from_codeset, to_codeset, display_error);
 }
+
 /* Length must be passed, as the string might be Unicode, in which case we can't
  * count zeroes (see strlen call below). */
-gchar *convert_string_1 (const gchar *string, gssize length, const gchar *from_codeset,
+gchar *
+convert_string_1 (const gchar *string, gssize length, const gchar *from_codeset,
                          const gchar *to_codeset, const gboolean display_error)
 {
     gchar *output;
     GError *error = NULL;
     gsize bytes_written;
 
-    if (!string)
-        return NULL;
+    g_return_val_if_fail (string != NULL, NULL);
 
     output = g_convert(string, length, to_codeset, from_codeset, NULL, &bytes_written, &error);
     //output = g_convert_with_fallback(string, length, to_codeset, from_codeset, "?", NULL, &bytes_written, &error);
@@ -467,86 +468,35 @@ gchar *convert_to_utf8 (const gchar *string)
     return output;
 }
 
-gchar *convert_from_utf8 (const char *string)
-{
-    gchar *output;
-    GError *error = NULL;
-
-    if (!string)
-        return NULL;
-
-    output = g_locale_from_utf8(string, -1, NULL, NULL, &error);
-
-    if (output == NULL)
-    {
-        const gchar *usercharset;
-        gchar *escaped_str = g_strescape(string, NULL);
-        g_get_charset(&usercharset);
-        Log_Print(LOG_ERROR,"convert_from_utf8(): Failed conversion to charset '%s'. "
-                  "String '%s'. Errcode %d (%s).",
-                  usercharset, escaped_str, error->code, error->message);
-        g_free(escaped_str);
-
-        if (g_utf8_validate(string, -1, NULL))
-            Log_Print(LOG_ERROR,"convert_from_utf8(): String was valid UTF-8.");
-        else
-            Log_Print(LOG_ERROR,"convert_from_utf8(): String was INVALID UTF-8.");
-
-        g_error_free(error);
-        return g_strdup(string);
-    }
-
-    return output;
-}
-
-
-
 /*
- * Convert a string from the filename system encoding to UTF-8.
- *  - conversion OK : returns the UTF-8 string (new allocated)
- *  - conversion KO : tries others encodings else returns an 'escaped' string
- */
-gchar *filename_to_display (const gchar *string)
+ * filename_to_display:
+ * @string: the string to convert
+ *
+ * Convert a string from the GLib filename encoding to UTF-8. If the conversion
+ * failed, an escaped string will be returned instead.
+ *
+ * Returns: a newly-allocated UTF-8 string. */
+gchar *
+filename_to_display (const gchar *string)
 {
     gchar *ret = NULL;
     GError *error = NULL;
 
-    if (!string)
-        return NULL;
+    g_return_val_if_fail (string != NULL, NULL);
 
-    if (g_utf8_validate(string, -1, NULL))
+    ret = g_filename_to_utf8 (string, -1, NULL, NULL, &error);
+
+    if (error)
     {
-        // String already in UTF-8
-        ret = g_strdup(string);
-    }else
-    {
-        const gchar *char_encoding;
+        gchar *escaped_str = g_strescape (string, NULL);
+        Log_Print (LOG_ERROR,
+                   _("The filename '%s' could not be converted into UTF-8 (%s)"),
+                   escaped_str,
+                   error && error->message ? error->message : _("Invalid UTF-8"));
+        g_clear_error (&error);
 
-        // Get encoding associated to the locale without using UTF-8 (ex , if LANG=fr_FR.UTF-8 it will return ISO-8859-1)
-        char_encoding = get_encoding_from_locale(get_locale());
-        if (char_encoding)
-        {
-            //g_print("> char_encoding: %s\n",char_encoding);
-            error = NULL;
-            ret = g_convert(string, -1, "UTF-8", char_encoding, NULL, NULL, &error);
-        }
-
-        if (!ret)
-        {
-            // Failing that, try ISO-8859-1
-            error = NULL;
-            ret = g_convert(string, -1, "UTF-8", "ISO-8859-1", NULL, NULL, &error);
-        }
-
-        if (!ret)
-        {
-            gchar *escaped_str = g_strescape(string, NULL);
-            Log_Print(LOG_ERROR,_("The filename '%s' couldn't be converted into UTF-8 (%s)."),
-                        escaped_str, error && error->message ? error->message : _("Invalid UTF-8"));
-            g_clear_error(&error);
-
-            ret = escaped_str;
-        }
+        /* ret is NULL if error is set. */
+        ret = escaped_str;
     }
 
 #ifdef WIN32
@@ -569,7 +519,7 @@ gchar *filename_from_display (const gchar *string)
     const gchar *char_encoding = NULL;
     //const gchar *filename_encoding = NULL;
 
-    if (!string) return NULL;
+    g_return_val_if_fail (string != NULL, NULL);
 
     // Get system encoding from LANG if found (ex : fr_FR.UTF-8 => UTF-8)
     if (get_locale())
@@ -734,93 +684,19 @@ void Charset_Populate_Combobox (GtkComboBox *combo, gchar *select_charset)
 /*
  * Return charset_name from charset_title
  */
-gchar *Charset_Get_Name_From_Title (const gchar *charset_title)
+gchar *
+Charset_Get_Name_From_Title (const gchar *charset_title)
 {
     guint i;
 
-    if (charset_title)
-        for (i=0; i<CHARSET_TRANS_ARRAY_LEN; i++)
-            if ( strcasecmp(_(charset_title),_(charset_trans_array[i].charset_title)) == 0 )
-                return charset_trans_array[i].charset_name;
-    return "";
-}
+    g_return_val_if_fail (charset_title != NULL, "");
 
-
-/*
- * Return charset_title from charset_name
- */
-gchar *Charset_Get_Title_From_Name (gchar *charset_name)
-{
-    guint i;
-
-    if (charset_name)
-        for (i=0; i<CHARSET_TRANS_ARRAY_LEN; i++)
-            if ( strcasecmp(charset_name,charset_trans_array[i].charset_name) == 0 )
-                return _(charset_trans_array[i].charset_title);
-    return "";
-}
-
-
-
-/*
- * Test if the conversion is supported between two character sets ('from' and 'to)
- * (function called in the preferences window).
- * Note : for UTF-16 (2 byte for each character) we make a special test...
- */
-gboolean test_conversion_charset (const gchar *from, const gchar *to)
-{
-    gchar *temp;
-
-    if (!from || !to)
-        return FALSE;
-
-    // Do a quick test conversion and examine error output
-    if ( strcmp(from,"UTF-16BE") == 0 )
+    for (i = 0; i < CHARSET_TRANS_ARRAY_LEN; i++)
     {
-        temp = convert_string_1("F\0O\0O\0\0\0", 6, from, to, FALSE);
-    }else if ( strcmp(from,"UTF-16LE") == 0 )
-    {
-        temp = convert_string_1("\0F\0O\0O\0\0", 6, from, to, FALSE);
-    }else
-    {
-        temp = convert_string("FOO", from, to, FALSE);
-    }
-
-    if (!temp)
-    {
-        /*// Error in conversion
-        if (error && error->code == G_CONVERT_ERROR_NO_CONVERSION)
+        if (strcasecmp (_(charset_title),
+                        _(charset_trans_array[i].charset_title)) == 0)
         {
-            Log_Print(LOG_ERROR,"Conversion error from '%s' to '%s' (G_CONVERT_ERROR_NO_CONVERSION)",from,to);
-        } else if (error && error->code == G_CONVERT_ERROR_ILLEGAL_SEQUENCE)
-        {
-            Log_Print(LOG_ERROR,"Conversion error from '%s' to '%s' (G_CONVERT_ERROR_ILLEGAL_SEQUENCE)",from,to);
-        } else if (error && error->code == G_CONVERT_ERROR_FAILED)
-        {
-            Log_Print(LOG_ERROR,"Conversion error from '%s' to '%s' (G_CONVERT_ERROR_FAILED)",from,to);
-        } else if (error && error->code == G_CONVERT_ERROR_PARTIAL_INPUT)
-        {
-            Log_Print(LOG_ERROR,"Conversion error from '%s' to '%s' (G_CONVERT_ERROR_PARTIAL_INPUT)",from,to);
-        } else if (error && error->code == G_CONVERT_ERROR_BAD_URI)
-        {
-            Log_Print(LOG_ERROR,"Conversion error from '%s' to '%s' (G_CONVERT_ERROR_BAD_URI)",from,to);
-        } else if (error && error->code == G_CONVERT_ERROR_NOT_ABSOLUTE_PATH)
-        {
-            Log_Print(LOG_ERROR,"Conversion error from '%s' to '%s' (G_CONVERT_ERROR_NOT_ABSOLUTE_PATH)",from,to);
-        } else
-        {
-            Log_Print(LOG_ERROR,"Conversion error from '%s' to '%s' (unknown : %d)",from,to,error->code);
+            return charset_trans_array[i].charset_name;
         }
-
-        if (error)
-            g_error_free(error);*/
-        return FALSE;
-    } else
-    {
-        /*// No error
-        if (error)
-            g_error_free(error);*/
-        g_free(temp);
-        return TRUE;
     }
 }

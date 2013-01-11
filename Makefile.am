@@ -23,7 +23,6 @@ easytag_SOURCES = \
 	src/libapetag/info_mpc.c \
 	src/libmpg123/common.c \
 	src/libmpg123/dxhead.c \
-	src/libmpg123/getbits.c \
 	src/libmpg123/layer1.c \
 	src/libmpg123/layer2.c \
 	src/libmpg123/layer3.c \
@@ -149,8 +148,6 @@ pixmaps = \
 	pixmaps/ram_disk.xpm \
 	pixmaps/read_only.xpm \
 	pixmaps/red_lines.xpm \
-	pixmaps/scan.xpm \
-	pixmaps/select_all.xpm \
 	pixmaps/sequence_track.xpm \
 	pixmaps/sound.xpm \
 	pixmaps/unselect_all.xpm

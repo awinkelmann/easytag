@@ -101,43 +101,50 @@ gint     SF_ButtonPressed_Delete_File;
 /**************
  * Prototypes *
  **************/
-void     Handle_Crash     (gint signal_id);
-gchar   *signal_to_string (gint signal);
+static void Handle_Crash (gint signal_id);
+static const gchar *signal_to_string (gint signal);
 
-GtkWidget *Create_Browser_Area (void);
-GtkWidget *Create_File_Area    (void);
-GtkWidget *Create_Tag_Area     (void);
+static GtkWidget *Create_Browser_Area (void);
+static GtkWidget *Create_File_Area    (void);
+static GtkWidget *Create_Tag_Area     (void);
 
-void Menu_Mini_Button_Clicked (GtkEntry *entry);
-void Mini_Button_Clicked      (GObject *object);
-void Disable_Command_Buttons (void);
+static void Menu_Mini_Button_Clicked (GtkEntry *entry);
+static void Mini_Button_Clicked (GObject *object);
+static void Disable_Command_Buttons (void);
 void Clear_Tag_Entry_Fields  (void);
 void Clear_File_Entry_Field  (void);
 void Clear_Header_Fields     (void);
 
-gint Make_Dir         (const gchar *dirname_old, const gchar *dirname_new);
-gint Remove_Dir       (const gchar *dirname_old, const gchar *dirname_new);
-gboolean Write_File_Tag   (ET_File *ETFile, gboolean hide_msgbox);
-gboolean Rename_File      (ET_File *ETFile, gboolean hide_msgbox);
-gint Save_File        (ET_File *ETFile, gboolean multiple_files, gboolean force_saving_files);
-gint Delete_File      (ET_File *ETFile, gboolean multiple_files);
+static gboolean Make_Dir (const gchar *dirname_old, const gchar *dirname_new);
+static gboolean Remove_Dir (const gchar *dirname_old,
+                            const gchar *dirname_new);
+static gboolean Write_File_Tag (ET_File *ETFile, gboolean hide_msgbox);
+static gboolean Rename_File (ET_File *ETFile, gboolean hide_msgbox);
+static gint Save_File (ET_File *ETFile, gboolean multiple_files,
+                       gboolean force_saving_files);
+static gint Delete_File (ET_File *ETFile, gboolean multiple_files);
 gint Save_All_Files_With_Answer        (gboolean force_saving_files);
-gint Save_Selected_Files_With_Answer   (gboolean force_saving_files);
-gint Save_List_Of_Files                (GList *etfilelist, gboolean force_saving_files);
-gint Delete_Selected_Files_With_Answer (void);
-gint Copy_File (gchar const *fileold, gchar const *filenew);
+static gint Save_Selected_Files_With_Answer (gboolean force_saving_files);
+static gint Save_List_Of_Files (GList *etfilelist,
+                                gboolean force_saving_files);
+static gint Delete_Selected_Files_With_Answer (void);
+static gboolean Copy_File (const gchar *fileold, const gchar *filenew);
 
-void Display_Usage (void);
+static void Display_Usage (void);
 
-void Init_Load_Default_Dir (void);
-void EasyTAG_Exit (void);
+static void Init_Load_Default_Dir (void);
+static void EasyTAG_Exit (void);
 void Quit_MainWindow_Ok_Button (void);
 
-GList *Read_Directory_Recursively (GList *file_list, gchar *path, gint recurse);
-void Open_Quit_Recursion_Function_Window    (void);
-void Destroy_Quit_Recursion_Function_Window (void);
-void Quit_Recursion_Function_Button_Pressed (void);
-void Quit_Recursion_Window_Key_Press (GtkWidget *window, GdkEvent *event);
+static GList *Read_Directory_Recursively (GList *file_list, const gchar *path,
+                                          gboolean recurse);
+static void Open_Quit_Recursion_Function_Window (void);
+static void Destroy_Quit_Recursion_Function_Window (void);
+static void Quit_Recursion_Function_Button_Pressed (void);
+static void Quit_Recursion_Window_Key_Press (GtkWidget *window,
+                                             GdkEvent *event);
+static void File_Area_Set_Sensitive (gboolean activate);
+static void Tag_Area_Set_Sensitive  (gboolean activate);
 
 #ifndef WIN32
 static void
@@ -183,7 +190,6 @@ int main (int argc, char *argv[])
     gboolean created_settings;
     struct stat statbuf;
     //GError *error = NULL;
-    GdkPixbuf *pixbuf;
 
 
 #ifdef WIN32
@@ -431,7 +437,8 @@ int main (int argc, char *argv[])
 }
 
 
-GtkWidget *Create_Browser_Area (void)
+static GtkWidget *
+Create_Browser_Area (void)
 {
     GtkWidget *Frame;
     GtkWidget *Tree;
@@ -451,7 +458,8 @@ GtkWidget *Create_Browser_Area (void)
 }
 
 
-GtkWidget *Create_File_Area (void)
+static GtkWidget *
+Create_File_Area (void)
 {
     GtkWidget *VBox, *HBox;
     GtkWidget *Separator;
@@ -555,7 +563,8 @@ GtkWidget *Create_File_Area (void)
 }
 
 #include "../pixmaps/sequence_track.xpm"
-GtkWidget *Create_Tag_Area (void)
+static GtkWidget *
+Create_Tag_Area (void)
 {
     GtkWidget *Separator;
     GtkWidget *Frame;
@@ -1220,12 +1229,15 @@ GtkWidget *Create_Tag_Area (void)
 /*
  * Actions when mini buttons are pressed: apply the field to all others files
  */
-void Menu_Mini_Button_Clicked (GtkEntry *entry)
+static void
+Menu_Mini_Button_Clicked (GtkEntry *entry)
 {
     if ( g_object_get_data(G_OBJECT(entry),"MButtonName") )
         Mini_Button_Clicked(G_OBJECT(g_object_get_data(G_OBJECT(entry),"MButtonName")));
 }
-void Mini_Button_Clicked (GObject *object)
+
+static void
+Mini_Button_Clicked (GObject *object)
 {
     GList *etfilelist = NULL;
     GList *selection_filelist = NULL;
@@ -1236,8 +1248,8 @@ void Mini_Button_Clicked (GObject *object)
     File_Tag *FileTag;
     GtkTreeSelection *selection;
 
-
-    if (!ETCore->ETFileDisplayedList || !BrowserList) return;
+    g_return_if_fail (ETCore->ETFileDisplayedList != NULL ||
+                      BrowserList != NULL);
 
     // Save the current displayed data
     ET_Save_File_Data_From_UI(ETCore->ETFileDisplayed);
@@ -1927,7 +1939,8 @@ void Action_Scan_Selected_Files (void)
     ET_File *etfile;
     GtkTreeSelection *selection;
 
-    if (!ETCore->ETFileDisplayedList || !BrowserList) return;
+    g_return_if_fail (ETCore->ETFileDisplayedList != NULL ||
+                      BrowserList != NULL);
 
     /* Check if scanner window is opened */
     if (!ScannerWindow)
@@ -2006,7 +2019,8 @@ void Action_Remove_Selected_Tags (void)
     double fraction;
     GtkTreeSelection *selection;
 
-    if (!ETCore->ETFileDisplayedList || !BrowserList) return;
+    g_return_if_fail (ETCore->ETFileDisplayedList != NULL ||
+                      BrowserList != NULL);
 
     /* Save the current displayed data */
     ET_Save_File_Data_From_UI(ETCore->ETFileDisplayed);
@@ -2062,7 +2076,8 @@ gint Action_Undo_Selected_Files (void)
     ET_File *etfile;
     GtkTreeSelection *selection;
 
-    if (!ETCore->ETFileDisplayedList || !BrowserList) return FALSE;
+    g_return_val_if_fail (ETCore->ETFileDisplayedList != NULL ||
+                          BrowserList != NULL, FALSE);
 
     /* Save the current displayed data */
     ET_Save_File_Data_From_UI(ETCore->ETFileDisplayed);
@@ -2098,7 +2113,7 @@ void Action_Undo_From_History_List (void)
 {
     ET_File *ETFile;
 
-    if (!ETCore->ETFileList) return;
+    g_return_if_fail (ETCore->ETFileList != NULL);
 
     /* Save the current displayed data */
     ET_Save_File_Data_From_UI(ETCore->ETFileDisplayed);
@@ -2128,7 +2143,8 @@ gint Action_Redo_Selected_File (void)
     ET_File *etfile;
     GtkTreeSelection *selection;
 
-    if (!ETCore->ETFileDisplayedList || !BrowserList) return FALSE;
+    g_return_val_if_fail (ETCore->ETFileDisplayedList != NULL ||
+                          BrowserList != NULL, FALSE);
 
     /* Save the current displayed data */
     ET_Save_File_Data_From_UI(ETCore->ETFileDisplayed);
@@ -2162,7 +2178,7 @@ void Action_Redo_From_History_List (void)
 {
     ET_File *ETFile;
 
-    if (!ETCore->ETFileDisplayedList) return;
+    g_return_if_fail (ETCore->ETFileDisplayedList != NULL);
 
     /* Save the current displayed data */
     ET_Save_File_Data_From_UI(ETCore->ETFileDisplayed);
@@ -2204,15 +2220,18 @@ gint Save_All_Files_With_Answer (gboolean force_saving_files)
 {
     GList *etfilelist;
 
-    if (!ETCore || !ETCore->ETFileList) return FALSE;
-    etfilelist = g_list_first(ETCore->ETFileList);
-    return Save_List_Of_Files(etfilelist,force_saving_files);
+    g_return_val_if_fail (ETCore != NULL || ETCore->ETFileList != NULL, FALSE);
+
+    etfilelist = g_list_first (ETCore->ETFileList);
+
+    return Save_List_Of_Files (etfilelist, force_saving_files);
 }
 
 /*
  * Will save only the selected files in the file list
  */
-gint Save_Selected_Files_With_Answer (gboolean force_saving_files)
+static gint
+Save_Selected_Files_With_Answer (gboolean force_saving_files)
 {
     gint toreturn;
     GList *etfilelist = NULL;
@@ -2220,7 +2239,7 @@ gint Save_Selected_Files_With_Answer (gboolean force_saving_files)
     ET_File *etfile;
     GtkTreeSelection *selection;
 
-    if (!BrowserList) return FALSE;
+    g_return_val_if_fail (BrowserList != NULL, FALSE);
 
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(BrowserList));
     selfilelist = gtk_tree_selection_get_selected_rows(selection, NULL);
@@ -2245,7 +2264,8 @@ gint Save_Selected_Files_With_Answer (gboolean force_saving_files)
  *  - force_saving_files = TRUE => force saving the file even if it wasn't changed
  *  - force_saving_files = FALSE => force saving only the changed files
  */
-gint Save_List_Of_Files (GList *etfilelist, gboolean force_saving_files)
+static gint
+Save_List_Of_Files (GList *etfilelist, gboolean force_saving_files)
 {
     gint       progress_bar_index;
     gint       saving_answer;
@@ -2263,7 +2283,7 @@ gint Save_List_Of_Files (GList *etfilelist, gboolean force_saving_files)
     GtkWidget *widget_focused;
     GtkTreePath *currentPath = NULL;
 
-    if (!ETCore) return FALSE;
+    g_return_val_if_fail (ETCore != NULL, FALSE);
 
     /* Save the current position in the list */
     etfile_save_position = ETCore->ETFileDisplayed;
@@ -2454,7 +2474,8 @@ void Action_Delete_Selected_Files (void)
 }
 
 
-gint Delete_Selected_Files_With_Answer (void)
+static gint
+Delete_Selected_Files_With_Answer (void)
 {
     GList *selfilelist;
     GList *rowreflist = NULL;
@@ -2469,7 +2490,8 @@ gint Delete_Selected_Files_With_Answer (void)
     GtkTreeRowReference *rowref;
     GtkTreeSelection *selection;
 
-    if (!ETCore->ETFileDisplayedList || !BrowserList) return FALSE;
+    g_return_val_if_fail (ETCore->ETFileDisplayedList != NULL ||
+                          BrowserList != NULL, FALSE);
 
     /* Save the current displayed data */
     ET_Save_File_Data_From_UI(ETCore->ETFileDisplayed);
@@ -2596,7 +2618,9 @@ gint Delete_Selected_Files_With_Answer (void)
  *                             to do the same action for all files.
  *  - multiple_files = FALSE : appears only a msgbox to ask confirmation.
  */
-gint Save_File (ET_File *ETFile, gboolean multiple_files, gboolean force_saving_files)
+static gint
+Save_File (ET_File *ETFile, gboolean multiple_files,
+           gboolean force_saving_files)
 {
     File_Tag  *FileTag;
     File_Name *FileNameNew;
@@ -2608,8 +2632,7 @@ gint Save_File (ET_File *ETFile, gboolean multiple_files, gboolean force_saving_
     gchar *basename_cur_utf8, *basename_new_utf8;
     gchar *dirname_cur_utf8, *dirname_new_utf8;
 
-
-    if (!ETFile) return 0;
+    g_return_val_if_fail (ETFile != NULL, 0);
 
     basename_cur_utf8 = g_path_get_basename(filename_cur_utf8);
     basename_new_utf8 = g_path_get_basename(filename_new_utf8);
@@ -2858,7 +2881,8 @@ gint Save_File (ET_File *ETFile, gboolean multiple_files, gboolean force_saving_
  * Return TRUE => OK
  *        FALSE => error
  */
-gboolean Write_File_Tag (ET_File *ETFile, gboolean hide_msgbox)
+static gboolean
+Write_File_Tag (ET_File *ETFile, gboolean hide_msgbox)
 {
     gchar *cur_filename_utf8 = ((File_Name *)ETFile->FileNameCur->data)->value_utf8;
     gchar *msg;
@@ -2888,7 +2912,7 @@ gboolean Write_File_Tag (ET_File *ETFile, gboolean hide_msgbox)
             break;
 #endif
         default:
-            msg = g_strerror(errno);
+            msg = g_strdup (g_strerror (errno));
     }
 
     msg1 = g_strdup_printf(_("Cannot write tag in file '%s' (%s)"),
@@ -2920,7 +2944,8 @@ gboolean Write_File_Tag (ET_File *ETFile, gboolean hide_msgbox)
 /*
  * Make dir and all parents with permission mode
  */
-gint Make_Dir (const gchar *dirname_old, const gchar *dirname_new)
+static gboolean
+Make_Dir (const gchar *dirname_old, const gchar *dirname_new)
 {
     gchar *parent, *temp;
     struct stat dirstat;
@@ -2950,23 +2975,24 @@ gint Make_Dir (const gchar *dirname_old, const gchar *dirname_new)
         if (mkdir(parent,dirstat.st_mode)==-1 && errno!=EEXIST)
         {
             g_free(parent);
-            return(-1);
+            return FALSE;
         }
         *temp=G_DIR_SEPARATOR; // To cancel the '*temp=0;'
     }
     g_free(parent);
 
     if (mkdir(dirname_new,dirstat.st_mode)==-1 && errno!=EEXIST)
-        return(-1);
+        return FALSE;
 
-    return(0);
+    return TRUE;
 }
 
 /*
  * Remove old directories after renaming the file
  * Badly coded, but works....
  */
-gint Remove_Dir (const gchar *dirname_old, const gchar *dirname_new)
+static gboolean
+Remove_Dir (const gchar *dirname_old, const gchar *dirname_new)
 {
     gchar *temp_old, *temp_new;
     gchar *temp_end_old, *temp_end_new;
@@ -2984,7 +3010,7 @@ gint Remove_Dir (const gchar *dirname_old, const gchar *dirname_new)
             {
                 g_free(temp_old);
                 g_free(temp_new);
-                return(-1);
+                return FALSE;
             }else
             {
                 break;
@@ -3008,7 +3034,7 @@ gint Remove_Dir (const gchar *dirname_old, const gchar *dirname_new)
     g_free(temp_old);
     g_free(temp_new);
 
-    return(0);
+    return TRUE;
 }
 
 
@@ -3017,7 +3043,8 @@ gint Remove_Dir (const gchar *dirname_old, const gchar *dirname_new)
  * Return TRUE => OK
  *        FALSE => error
  */
-gboolean Rename_File (ET_File *ETFile, gboolean hide_msgbox)
+static gboolean
+Rename_File (ET_File *ETFile, gboolean hide_msgbox)
 {
     FILE  *file;
     gchar *tmp_filename = NULL;
@@ -3158,7 +3185,7 @@ gboolean Rename_File (ET_File *ETFile, gboolean hide_msgbox)
 
     if (dirname_cur && dirname_new && strcmp(dirname_cur,dirname_new)) /* Need to create target directory? */
     {
-        if (Make_Dir(dirname_cur,dirname_new))
+        if (!Make_Dir(dirname_cur,dirname_new))
         {
             gchar *msg;
             GtkWidget *msgdialog;
@@ -3209,7 +3236,7 @@ gboolean Rename_File (ET_File *ETFile, gboolean hide_msgbox)
         Statusbar_Message(_("File(s) renamed…"),TRUE);
 
         /* Remove the of directory (check automatically if it is empty) */
-        if (Remove_Dir(dirname_cur,dirname_new))
+        if (!Remove_Dir(dirname_cur,dirname_new))
         {
             gchar *msg;
             GtkWidget *msgdialog;
@@ -3267,7 +3294,7 @@ gboolean Rename_File (ET_File *ETFile, gboolean hide_msgbox)
             Statusbar_Message(_("File(s) moved…"),TRUE);
 
             /* Remove the of directory (check automatically if it is empty) */
-            if (Remove_Dir(dirname_cur,dirname_new))
+            if (!Remove_Dir(dirname_cur,dirname_new))
             {
                 gchar *msg;
                 GtkWidget *msgdialog;
@@ -3385,7 +3412,8 @@ gboolean Rename_File (ET_File *ETFile, gboolean hide_msgbox)
 /*
  * Delete the file ETFile
  */
-gint Delete_File (ET_File *ETFile, gboolean multiple_files)
+static gint
+Delete_File (ET_File *ETFile, gboolean multiple_files)
 {
     GtkWidget *msgdialog;
     GtkWidget *msgdialog_check_button = NULL;
@@ -3395,7 +3423,7 @@ gint Delete_File (ET_File *ETFile, gboolean multiple_files)
     gint response;
     gint stop_loop;
 
-    if (!ETFile) return FALSE;
+    g_return_val_if_fail (ETFile != NULL, FALSE);
 
     // Filename of the file to delete
     cur_filename      = ((File_Name *)(ETFile->FileNameCur)->data)->value;
@@ -3474,7 +3502,8 @@ gint Delete_File (ET_File *ETFile, gboolean multiple_files)
 /*
  * Copy a file to a new location
  */
-gint Copy_File (gchar const *fileold, gchar const *filenew)
+static gboolean
+Copy_File (const gchar *fileold, const gchar *filenew)
 {
     FILE* fOld;
     FILE* fNew;
@@ -3513,9 +3542,10 @@ gint Copy_File (gchar const *fileold, gchar const *filenew)
     return TRUE;
 }
 
-void Action_Select_Browser_Style (void)
+void
+Action_Select_Browser_Style (void)
 {
-    if (!ETCore->ETFileDisplayedList) return;
+    g_return_if_fail (ETCore->ETFileDisplayedList != NULL);
 
     /* Save the current displayed data */
     ET_Save_File_Data_From_UI(ETCore->ETFileDisplayed);
@@ -3550,8 +3580,7 @@ gboolean Read_Directory (gchar *path_real)
     GtkAction *uiaction;
     GtkWidget *TBViewMode;
 
-    if (!path_real)
-        return FALSE;
+    g_return_val_if_fail (path_real != NULL, FALSE);
 
     ReadingDirectory = TRUE;    /* A flag to avoid to start another reading */
 
@@ -3724,7 +3753,9 @@ gboolean Read_Directory (gchar *path_real)
 /*
  * Recurse the path to create a list of files. Return a GList of the files found.
  */
-GList *Read_Directory_Recursively (GList *file_list, gchar *path_real, gint recurse)
+static GList *
+Read_Directory_Recursively (GList *file_list, const gchar *path_real,
+                            gboolean recurse)
 {
     DIR *dir;
     struct dirent *dirent;
@@ -3782,7 +3813,8 @@ GList *Read_Directory_Recursively (GList *file_list, gchar *path_real, gint recu
 /*
  * Window with the 'STOP' button to stop recursion when reading directories
  */
-void Open_Quit_Recursion_Function_Window (void)
+static void
+Open_Quit_Recursion_Function_Window (void)
 {
     GtkWidget *button;
     GtkWidget *frame;
@@ -3817,7 +3849,9 @@ void Open_Quit_Recursion_Function_Window (void)
 
     gtk_widget_show_all(QuitRecursionWindow);
 }
-void Destroy_Quit_Recursion_Function_Window (void)
+
+static void
+Destroy_Quit_Recursion_Function_Window (void)
 {
     if (QuitRecursionWindow)
     {
@@ -3826,12 +3860,16 @@ void Destroy_Quit_Recursion_Function_Window (void)
         /*Statusbar_Message(_("Recursive file search interrupted."),FALSE);*/
     }
 }
-void Quit_Recursion_Function_Button_Pressed (void)
+
+static void
+Quit_Recursion_Function_Button_Pressed (void)
 {
     Action_Main_Stop_Button_Pressed();
     Destroy_Quit_Recursion_Function_Window();
 }
-void Quit_Recursion_Window_Key_Press (GtkWidget *window, GdkEvent *event)
+
+static void
+Quit_Recursion_Window_Key_Press (GtkWidget *window, GdkEvent *event)
 {
     GdkEventKey *kevent;
 
@@ -3859,7 +3897,8 @@ void Action_Main_Stop_Button_Pressed (void)
     g_object_set(uiaction, "sensitive", FALSE, NULL);
 }
 
-void ui_widget_set_sensitive (const gchar *menu, const gchar *action, gboolean sensitive)
+static void
+ui_widget_set_sensitive (const gchar *menu, const gchar *action, gboolean sensitive)
 {
     GtkAction *uiaction;
     gchar *path;
@@ -4091,7 +4130,8 @@ void Update_Command_Buttons_Sensivity (void)
 /*
  * Just to disable buttons when we are saving files (do not disable Quit button)
  */
-void Disable_Command_Buttons (void)
+static void
+Disable_Command_Buttons (void)
 {
     /* Scanner Window */
     if (SWScanButton)
@@ -4126,11 +4166,12 @@ void Disable_Command_Buttons (void)
 /*
  * Disable (FALSE) / Enable (TRUE) all user widgets in the tag area
  */
-void Tag_Area_Set_Sensitive (gboolean activate)
+static void
+Tag_Area_Set_Sensitive (gboolean activate)
 {
-    if (!TagArea) return;
+    g_return_if_fail (TagArea != NULL);
 
-    // TAG Area (entries + buttons)
+    /* TAG Area (entries + buttons). */
     gtk_widget_set_sensitive(gtk_bin_get_child(GTK_BIN(TagArea)),activate);
 
     /*// TAG Area
@@ -4161,11 +4202,12 @@ void Tag_Area_Set_Sensitive (gboolean activate)
 /*
  * Disable (FALSE) / Enable (TRUE) all user widgets in the file area
  */
-void File_Area_Set_Sensitive (gboolean activate)
+static void
+File_Area_Set_Sensitive (gboolean activate)
 {
-    if (!FileArea) return;
+    g_return_if_fail (FileArea != NULL);
 
-    // File Area
+    /* File Area. */
     gtk_widget_set_sensitive(gtk_bin_get_child(GTK_BIN(FileArea)),activate);
     /*gtk_widget_set_sensitive(GTK_WIDGET(FileEntry),activate);*/
 }
@@ -4175,10 +4217,10 @@ void File_Area_Set_Sensitive (gboolean activate)
  */
 void Tag_Area_Display_Controls (ET_File *ETFile)
 {
-    if (!ETFile || !ETFile->ETFileDescription || !TitleLabel)
-        return;
+    g_return_if_fail (ETFile != NULL || ETFile->ETFileDescription != NULL ||
+                      TitleLabel != NULL);
 
-    // Commun controls for all tags
+    /* Common controls for all tags. */
     gtk_widget_show(GTK_WIDGET(TitleLabel));
     gtk_widget_show(GTK_WIDGET(TitleEntry));
     gtk_widget_show(GTK_WIDGET(TitleMButton));
@@ -4484,9 +4526,9 @@ void Tag_Area_Display_Controls (ET_File *ETFile)
  */
 void Clear_Tag_Entry_Fields (void)
 {
-    //GtkTextBuffer *textbuffer;
+    /* GtkTextBuffer *textbuffer; */
 
-    if (!TitleEntry) return;
+    g_return_if_fail (TitleEntry != NULL);
 
     gtk_entry_set_text(GTK_ENTRY(TitleEntry),                       "");
     gtk_entry_set_text(GTK_ENTRY(ArtistEntry),                      "");
@@ -4498,8 +4540,8 @@ void Clear_Tag_Entry_Fields (void)
     gtk_entry_set_text(GTK_ENTRY(TrackTotalEntry),                  "");
     gtk_entry_set_text(GTK_ENTRY(gtk_bin_get_child(GTK_BIN(GenreCombo))),       "");
     gtk_entry_set_text(GTK_ENTRY(CommentEntry),                     "");
-    //textbuffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(CommentView));
-    //gtk_text_buffer_set_text(GTK_TEXT_BUFFER(textbuffer),           "", -1);
+    /* textbuffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(CommentView));
+     * gtk_text_buffer_set_text(GTK_TEXT_BUFFER(textbuffer),           "", -1); */
     gtk_entry_set_text(GTK_ENTRY(ComposerEntry),                    "");
     gtk_entry_set_text(GTK_ENTRY(OrigArtistEntry),                  "");
     gtk_entry_set_text(GTK_ENTRY(CopyrightEntry),                   "");
@@ -4513,11 +4555,12 @@ void Clear_Tag_Entry_Fields (void)
 /*
  * Clear the entry of file area
  */
-void Clear_File_Entry_Field (void)
+void
+Clear_File_Entry_Field (void)
 {
-    if (!FileEntry) return;
+    g_return_if_fail (FileEntry != NULL);
 
-    gtk_entry_set_text(GTK_ENTRY(FileEntry),"");
+    gtk_entry_set_text (GTK_ENTRY (FileEntry),"");
 }
 
 
@@ -4526,7 +4569,7 @@ void Clear_File_Entry_Field (void)
  */
 void Clear_Header_Fields (void)
 {
-    if (!VersionValueLabel) return;
+    g_return_if_fail (VersionValueLabel != NULL);
 
     /* Default values are MPs data */
     gtk_label_set_text(GTK_LABEL(VersionLabel),        _("Encoder:"));
@@ -4546,7 +4589,8 @@ void Clear_Header_Fields (void)
  * Load the default directory when the user interface is completely displayed
  * to avoid bad visualization effect at startup.
  */
-void Init_Load_Default_Dir (void)
+static void
+Init_Load_Default_Dir (void)
 {
     //ETCore->ETFileList = NULL;
     ET_Core_Free();
@@ -4574,7 +4618,8 @@ void Init_Load_Default_Dir (void)
 
 
 
-void Convert_P20_And_Undescore_Into_Spaces (GtkWidget *entry)
+static void
+Convert_P20_And_Underscore_Into_Spaces (GtkWidget *entry)
 {
     gchar *string = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
 
@@ -4584,7 +4629,8 @@ void Convert_P20_And_Undescore_Into_Spaces (GtkWidget *entry)
     g_free(string);
 }
 
-void Convert_Space_Into_Undescore (GtkWidget *entry)
+static void
+Convert_Space_Into_Underscore (GtkWidget *entry)
 {
     gchar *string = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
 
@@ -4593,7 +4639,8 @@ void Convert_Space_Into_Undescore (GtkWidget *entry)
     g_free(string);
 }
 
-void Convert_All_Uppercase (GtkWidget *entry)
+static void
+Convert_All_Uppercase (GtkWidget *entry)
 {
     gchar *string = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
 
@@ -4602,7 +4649,8 @@ void Convert_All_Uppercase (GtkWidget *entry)
     g_free(string);
 }
 
-void Convert_All_Downcase (GtkWidget *entry)
+static void
+Convert_All_Lowercase (GtkWidget *entry)
 {
     gchar *string = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
 
@@ -4611,7 +4659,8 @@ void Convert_All_Downcase (GtkWidget *entry)
     g_free(string);
 }
 
-void Convert_Letter_Uppercase (GtkWidget *entry)
+static void
+Convert_Letter_Uppercase (GtkWidget *entry)
 {
     gchar *string = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
 
@@ -4620,7 +4669,8 @@ void Convert_Letter_Uppercase (GtkWidget *entry)
     g_free(string);
 }
 
-void Convert_First_Letters_Uppercase (GtkWidget *entry)
+static void
+Convert_First_Letters_Uppercase (GtkWidget *entry)
 {
     gchar *string = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
 
@@ -4629,7 +4679,8 @@ void Convert_First_Letters_Uppercase (GtkWidget *entry)
     g_free(string);
 }
 
-void Convert_Remove_Space (GtkWidget *entry)
+static void
+Convert_Remove_Space (GtkWidget *entry)
 {
     gchar *string = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
 
@@ -4638,7 +4689,8 @@ void Convert_Remove_Space (GtkWidget *entry)
     g_free(string);
 }
 
-void Convert_Insert_Space (GtkWidget *entry)
+static void
+Convert_Insert_Space (GtkWidget *entry)
 {
     // FIX ME : we suppose that it will not grow more than 2 times its size...
     guint string_length = 2 * strlen(gtk_entry_get_text(GTK_ENTRY(entry)));
@@ -4651,7 +4703,8 @@ void Convert_Insert_Space (GtkWidget *entry)
     g_free(string);
 }
 
-void Convert_Only_One_Space (GtkWidget *entry)
+static void
+Convert_Only_One_Space (GtkWidget *entry)
 {
     gchar *string = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
 
@@ -4669,7 +4722,8 @@ Convert_Remove_All_Text (GtkWidget *entry)
 /*
  * Entry_Popup_Menu_Handler: show the popup menu when the third mouse button is pressed.
  */
-gboolean Entry_Popup_Menu_Handler (GtkMenu *menu, GdkEventButton *event)
+static gboolean
+Entry_Popup_Menu_Handler (GtkMenu *menu, GdkEventButton *event)
 {
     if (event && (event->type==GDK_BUTTON_PRESS) && (event->button==3))
     {
@@ -4715,14 +4769,14 @@ void Attach_Popup_Menu_To_Tag_Entries (GtkEntry *entry)
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(MenuItem),Image);
     gtk_menu_shell_append(GTK_MENU_SHELL(PopupMenu),MenuItem);
     g_signal_connect_swapped(G_OBJECT(MenuItem),"activate",
-        G_CALLBACK(Convert_P20_And_Undescore_Into_Spaces),G_OBJECT(entry));
+        G_CALLBACK(Convert_P20_And_Underscore_Into_Spaces),G_OBJECT(entry));
 
     MenuItem = gtk_image_menu_item_new_with_label(_("Convert ' ' to '_'"));
     Image = gtk_image_new_from_stock(GTK_STOCK_CONVERT,GTK_ICON_SIZE_MENU);
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(MenuItem),Image);
     gtk_menu_shell_append(GTK_MENU_SHELL(PopupMenu),MenuItem);
     g_signal_connect_swapped(G_OBJECT(MenuItem),"activate",
-        G_CALLBACK(Convert_Space_Into_Undescore),G_OBJECT(entry));
+        G_CALLBACK(Convert_Space_Into_Underscore),G_OBJECT(entry));
 
     /* Separator */
     MenuItem = gtk_menu_item_new();
@@ -4740,7 +4794,7 @@ void Attach_Popup_Menu_To_Tag_Entries (GtkEntry *entry)
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(MenuItem),Image);
     gtk_menu_shell_append(GTK_MENU_SHELL(PopupMenu),MenuItem);
     g_signal_connect_swapped(G_OBJECT(MenuItem),"activate",
-        G_CALLBACK(Convert_All_Downcase),G_OBJECT(entry));
+        G_CALLBACK(Convert_All_Lowercase),G_OBJECT(entry));
 
     MenuItem = gtk_image_menu_item_new_with_label(_("First letter uppercase"));
     Image = gtk_image_new_from_stock("easytag-first-letter-uppercase",GTK_ICON_SIZE_MENU);
@@ -4798,7 +4852,8 @@ void Attach_Popup_Menu_To_Tag_Entries (GtkEntry *entry)
  * Function to manage the received signals (specially for segfaults)
  * Handle crashs
  */
-void Handle_Crash (gint signal_id)
+static void
+Handle_Crash (gint signal_id)
 {
     //gchar commmand[256];
 
@@ -4826,7 +4881,8 @@ void Handle_Crash (gint signal_id)
     //system(commmand);
 }
 
-gchar *signal_to_string (gint signal)
+static const gchar *
+signal_to_string (gint signal)
 {
 #ifdef SIGHUP
     if (signal == SIGHUP)     return ("SIGHUP");
@@ -4949,7 +5005,8 @@ gchar *signal_to_string (gint signal)
 /*
  * Display usage information
  */
-void Display_Usage (void)
+static void
+Display_Usage (void)
 {
     // Fix from Steve Ralston for gcc-3.2.2
 #ifdef WIN32
@@ -4982,7 +5039,8 @@ void Display_Usage (void)
 /*
  * Exit the program
  */
-void EasyTAG_Exit (void)
+static void
+EasyTAG_Exit (void)
 {
     ET_Core_Destroy();
     Charset_Insert_Locales_Destroy();
@@ -4994,7 +5052,8 @@ void EasyTAG_Exit (void)
     exit(0);
 }
 
-void Quit_MainWindow_Confirmed (void)
+static void
+Quit_MainWindow_Confirmed (void)
 {
     // Save the configuration when exiting...
     Save_Changes_Of_UI();
@@ -5003,7 +5062,8 @@ void Quit_MainWindow_Confirmed (void)
     EasyTAG_Exit();
 }
 
-void Quit_MainWindow_Save_And_Quit (void)
+static void
+Quit_MainWindow_Save_And_Quit (void)
 {
     /* Save modified tags */
     if (Save_All_Files_With_Answer(FALSE) == -1)

@@ -99,6 +99,9 @@ static const gchar CDDB_LOCAL_PATH_HISTORY_FILE[] = "cddb_local_path.history";
  * Prototypes *
  **************/
 
+static void Save_Config_To_File (void);
+static gboolean Create_Easytag_Directory (void);
+
 
 
 /********************
@@ -645,7 +648,8 @@ void Init_Config_Variables (void)
  * Save into the config variables the settings of each tab of the Preferences window...
  * If settings needs to be "shown/applied" to the corresponding window, we do it
  */
-void Apply_Changes_Of_Preferences_Window (void)
+static void
+Apply_Changes_Of_Preferences_Window (void)
 {
     gchar *temp;
     int active;
@@ -862,7 +866,8 @@ void Apply_Changes_Of_Preferences_Window (void)
  *  - Position/size of the window
  *  - Specific options in the window
  */
-void Apply_Changes_Of_UI (void)
+static void
+Apply_Changes_Of_UI (void)
 {
     /*
      * Changes in user interface
@@ -910,7 +915,8 @@ void Save_Changes_Of_Preferences_Window (void)
 /*
  * Write the config file
  */
-void Save_Config_To_File (void)
+static void
+Save_Config_To_File (void)
 {
     gchar *file_path = NULL;
     FILE *file;
@@ -975,8 +981,6 @@ void Save_Config_To_File (void)
         fclose(file);
     }
     g_free(file_path);
-
-    //Display_Config();
 }
 
 
@@ -984,7 +988,8 @@ void Save_Config_To_File (void)
  * Parse lines read (line as <var_description>=<value>) and load the values
  * into the corresponding config variables.
  */
-void Set_Config (gchar *line)
+static void
+Set_Config (gchar *line)
 {
     gchar *var_descriptor;
     gchar *var_value;
@@ -1086,60 +1091,6 @@ void Read_Config (void)
 
 
 /*
- * Display values in config variables
- * For debuging only!
- */
-void Display_Config (void)
-{
-    gchar *file_path = NULL;
-    FILE *file;
-
-    /* The file to write */
-    file_path = g_build_filename (g_get_user_config_dir (), PACKAGE_TARNAME,
-                                  CONFIG_FILE, NULL);
-
-    if ((file = fopen (file_path, "r")) == 0)
-    {
-        g_print (_("Cannot open configuration file '%s' (%s)"), file_path,
-                 g_strerror (errno));
-    }else
-    {
-        gint ConfigVarListLen = sizeof(Config_Variables)/sizeof(tConfigVariable);
-        gint i;
-
-        g_print("\n## Current Config ##");
-        for (i=0; i<ConfigVarListLen; i++)
-        {
-            switch(Config_Variables[i].type)
-            {
-                case CV_TYPE_INT:
-                case CV_TYPE_BOOL:
-                {
-                    g_print("\n%d: %s=%d",i,Config_Variables[i].name,
-                                     *(int*)Config_Variables[i].pointer);
-                    break;
-                }
-                case CV_TYPE_STRING:
-                {
-                    g_print("\n%d: %s=%s",i,Config_Variables[i].name,
-                                     *(char**)Config_Variables[i].pointer);
-                    break;
-                }
-                default:
-                {
-                    g_print("NOT IMPLEMENTED (Save_Config)!! \n\a");
-                    break;
-                }
-            }
-        }
-        g_print("\n## End Current Config ##\n");
-        fclose(file);
-    }
-    g_free(file_path);
-}
-
-
-/*
  * check_or_create_file:
  * @filename: (type filename): the filename to create
  *
@@ -1204,7 +1155,8 @@ gboolean Setting_Create_Files (void)
 /*
  * Save the contents of a list store to a file
  */
-void Save_List_Store_To_File (const gchar *filename, GtkListStore *liststore, gint colnum)
+static void
+Save_List_Store_To_File (const gchar *filename, GtkListStore *liststore, gint colnum)
 {
     gchar *file_path = NULL;
     FILE *file;
@@ -1245,7 +1197,8 @@ void Save_List_Store_To_File (const gchar *filename, GtkListStore *liststore, gi
 /*
  * Populate a list store with data from a file passed in as first parameter
  */
-gboolean Populate_List_Store_From_File (const gchar *filename, GtkListStore *liststore, gint text_column)
+static gboolean
+Populate_List_Store_From_File (const gchar *filename, GtkListStore *liststore, gint text_column)
 {
 
     gchar *file_path = NULL;
@@ -1612,7 +1565,8 @@ migrate_config_file_dir (const gchar *old_path, const gchar *new_path)
  * Returns: %TRUE if the directory was created, or already exists. %FALSE if
  * the directory could not be created.
  */
-gboolean Create_Easytag_Directory (void)
+static gboolean
+Create_Easytag_Directory (void)
 {
     gchar *easytag_path = NULL;
     gint result;

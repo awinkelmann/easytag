@@ -82,7 +82,8 @@ gboolean Id3tag_Write_File_v23Tag (ET_File *ETFile);
 /*
  * Write the ID3 tags to the file. Returns TRUE on success, else 0.
  */
-gboolean Id3tag_Write_File_v23Tag (ET_File *ETFile)
+static gboolean
+Id3tag_Write_File_v23Tag (ET_File *ETFile)
 {
     File_Tag *FileTag;
     gchar    *filename;
@@ -1252,38 +1253,71 @@ gboolean Id3tag_Check_If_File_Is_Corrupted (gchar *filename)
  */
 gboolean Id3tag_Check_If_Id3lib_Is_Bugged (void)
 {
-    gint fd;
+    GFile *file;
+    GFileIOStream *ostream;
+    GError *error = NULL;
     guchar tmp[16] = {0xFF, 0xFB, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     ID3Tag *id3_tag = NULL;
     gchar *result = NULL;
     ID3Frame *id3_frame;
     gboolean use_unicode;
+    gssize count;
 
     // g_mkstemp modifies the filename
     gchar* filename = g_strdup("easytagXXXXXX.mp3");
 
-    // Create a temporary file
-	if ((fd = g_mkstemp( filename )) == -1 )
+    /* Create a temporary file. */
+    file = g_file_new_tmp ("easytagXXXXXX.mp3", &ostream, &error);
+    if (file)
     {
-        gchar *filename_utf8 = filename_to_display(filename);
+        gchar *filename;
+        gchar *filename_utf8;
+
+        filename = g_file_get_path (file);
+        filename_utf8 = filename_to_display (filename);
         Log_Print (LOG_ERROR, _("Error while opening file: '%s' (%s)"),
-                   filename_utf8, g_strerror(errno));
+                   filename_utf8, error->message);
+
+        g_free (filename);
         g_free (filename_utf8);
-        g_free( filename );
+        g_clear_error (&error);
+        g_object_unref (file);
+
         return FALSE;
     }
 
-	// Set data in the file
-    write( fd, &tmp,16 );
-    close( fd );
+    // Set data in the file
+    count = g_output_stream_write (G_OUTPUT_STREAM (ostream), tmp,
+                                   sizeof (tmp), NULL, &error);
+    if (count != sizeof (tmp))
+    {
+        gchar *filename;
+        gchar *filename_utf8;
+
+        filename = g_file_get_path (file);
+        filename_utf8 = filename_to_display (filename);
+        Log_Print (LOG_ERROR, _("Error while writing to file: '%s' (%s)"),
+                   filename_utf8, error->message);
+
+        g_free (filename);
+        g_free (filename_utf8);
+        g_clear_error (&error);
+        g_object_unref (file);
+        g_output_stream_close (G_OUTPUT_STREAM (ostream), NULL, NULL);
+
+        return FALSE;
+    }
+
+    g_output_stream_close (G_OUTPUT_STREAM (ostream), NULL, NULL);
+    g_object_unref (ostream);
 
     // Save state of switches as we must force to Unicode before writting
     use_unicode = FILE_WRITING_ID3V2_USE_UNICODE_CHARACTER_SET;
     FILE_WRITING_ID3V2_USE_UNICODE_CHARACTER_SET = TRUE;
 
     id3_tag = ID3Tag_New();
-    ID3Tag_Link_1(id3_tag,filename);
+    ID3Tag_Link_1 (id3_tag, g_file_get_path (file));
 
     // Create a new 'title' field for testing
     id3_frame = ID3Frame_NewID(ID3FID_TITLE);
@@ -1301,7 +1335,7 @@ gboolean Id3tag_Check_If_Id3lib_Is_Bugged (void)
 
 
     id3_tag = ID3Tag_New();
-    ID3Tag_Link_1(id3_tag,filename);
+    ID3Tag_Link_1 (id3_tag, g_file_get_path (file));
     // Read the written field
     if ( (id3_frame = ID3Tag_FindFrameWithID(id3_tag,ID3FID_TITLE)) )
     {
@@ -1309,8 +1343,9 @@ gboolean Id3tag_Check_If_Id3lib_Is_Bugged (void)
     }
 
     ID3Tag_Delete(id3_tag);
-    remove(filename);
-    g_free( filename );
+    g_file_delete (file, NULL, NULL);
+
+    g_object_unref (file);
 
     // Same string found? if yes => not bugged
     //if ( result && strcmp(result,"é")!=0 )

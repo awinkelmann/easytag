@@ -98,83 +98,83 @@ void ET_Core_Free       (void);
 void ET_Core_Destroy    (void);
 
 //gboolean ET_File_Is_Supported (gchar *filename);
-gchar               *ET_Get_File_Extension                  (gchar *filename);
-ET_File_Description *ET_Get_File_Description                (gchar *filename);
-ET_File_Description *ET_Get_File_Description_From_Extension (gchar *extension);
+static gchar *ET_Get_File_Extension (const gchar *filename);
+static ET_File_Description *ET_Get_File_Description (const gchar *filename);
+static ET_File_Description *ET_Get_File_Description_From_Extension (const gchar *extension);
 
-gboolean ET_Free_File_List                 (void);
+static gboolean ET_Free_File_List                 (void);
 gboolean ET_Free_File_List_Item            (ET_File *ETFile);
-gboolean ET_Free_File_Name_List            (GList *FileNameList);
-gboolean ET_Free_File_Tag_List             (GList *FileTagList);
-gboolean ET_Free_File_Name_Item            (File_Name *FileName);
+static gboolean ET_Free_File_Name_List            (GList *FileNameList);
+static gboolean ET_Free_File_Tag_List (GList *FileTagList);
+static gboolean ET_Free_File_Name_Item            (File_Name *FileName);
 gboolean ET_Free_File_Tag_Item             (File_Tag *FileTag);
-gboolean ET_Free_File_Tag_Item_Other_Field (File_Tag *FileTag);
-gboolean ET_Free_File_Info_Item            (ET_File_Info *ETFileInfo);
-gboolean ET_Free_History_File_List         (void);
-gboolean ET_Free_Displayed_File_List       (void);
-gboolean ET_Free_Artist_Album_File_List    (void);
+static gboolean ET_Free_File_Tag_Item_Other_Field (File_Tag *FileTag);
+static gboolean ET_Free_File_Info_Item (ET_File_Info *ETFileInfo);
+static gboolean ET_Free_History_File_List (void);
+static gboolean ET_Free_Displayed_File_List (void);
+static gboolean ET_Free_Artist_Album_File_List (void);
 
-void     ET_Initialize_File_Item      (ET_File *ETFile);
-void     ET_Initialize_File_Tag_Item  (File_Tag *FileTag);
-void     ET_Initialize_File_Name_Item (File_Name *FileName);
-void     ET_Initialize_File_Info_Item (ET_File_Info *ETFileInfo);
+static void ET_Initialize_File_Item (ET_File *ETFile);
+static void ET_Initialize_File_Tag_Item (File_Tag *FileTag);
+static void ET_Initialize_File_Name_Item (File_Name *FileName);
+static void ET_Initialize_File_Info_Item (ET_File_Info *ETFileInfo);
 
 //gboolean ET_Copy_File_Tag_Item       (ET_File *ETFile, File_Tag *FileTag);
-gboolean ET_Copy_File_Tag_Item_Other_Field (ET_File *ETFile, File_Tag *FileTag);
-//gboolean ET_Set_Field_File_Name_Item (gint *FileNameField, gchar *value);
-//gboolean ET_Set_Field_File_Name_Item    (gchar **FileNameField, gchar *value);
-//gboolean ET_Set_Field_File_Tag_Item  (gint *FileTagField, gchar *value);
+static gboolean ET_Copy_File_Tag_Item_Other_Field (ET_File *ETFile, File_Tag *FileTag);
 //gboolean ET_Set_Field_File_Tag_Picture (gchar **FileTagField, Picture *pic);
 
-guint    ET_File_Key_New     (void);
-guint    ET_Undo_Key_New     (void);
+static guint ET_File_Key_New (void);
+static guint ET_Undo_Key_New (void);
 
 GList   *ET_File_List_Remove (GList *item_to_remove);
 
 gboolean ET_Remove_File_From_File_List         (ET_File *ETFile);
-gboolean ET_Remove_File_From_Artist_Album_List (ET_File *ETFile);
+static gboolean ET_Remove_File_From_Artist_Album_List (ET_File *ETFile);
 
-void     ET_Display_File_And_List_Status_To_UI (ET_File *ETFile);
-void     ET_Display_Filename_To_UI             (ET_File *ETFile);
-gboolean ET_Display_File_Tag_To_UI             (ET_File *ETFile);
-gboolean ET_Display_File_Info_To_UI            (ET_File_Info *ETFileInfo);
+static void ET_Display_File_And_List_Status_To_UI (ET_File *ETFile);
+static void ET_Display_Filename_To_UI (ET_File *ETFile);
+static gboolean ET_Display_File_Tag_To_UI (ET_File *ETFile);
+static gboolean ET_Display_File_Info_To_UI (ET_File_Info *ETFileInfo);
 
-gboolean ET_Save_File_Name_From_UI             (ET_File *ETFile, File_Name *FileName);
-gboolean ET_Save_File_Name_Internal            (ET_File *ETFile, File_Name *FileName);
-gboolean ET_Save_File_Tag_From_UI              (File_Tag *FileTag);
-gboolean ET_Save_File_Tag_Internal             (ET_File *ETFile, File_Tag *FileTag);
+static gboolean ET_Save_File_Name_From_UI (ET_File *ETFile,
+                                           File_Name *FileName);
+static gboolean ET_Save_File_Name_Internal (ET_File *ETFile, File_Name *FileName);
+static gboolean ET_Save_File_Tag_From_UI (File_Tag *FileTag);
+static gboolean ET_Save_File_Tag_Internal (ET_File *ETFile, File_Tag *FileTag);
 
-void     ET_Mark_File_Tag_As_Saved             (ET_File *ETFile);
+static void ET_Mark_File_Tag_As_Saved (ET_File *ETFile);
 void     ET_Mark_File_Name_As_Saved            (ET_File *ETFile);
 
 gboolean ET_Manage_Changes_Of_File_Data         (ET_File *ETFile, File_Name *FileName, File_Tag *FileTag);
-gboolean ET_Detect_Changes_Of_File_Name         (File_Name *FileName1, File_Name *FileName2);
+static gboolean ET_Detect_Changes_Of_File_Name (File_Name *FileName1,
+                                                File_Name *FileName2);
 gboolean ET_Detect_Changes_Of_File_Tag          (File_Tag  *FileTag1,  File_Tag  *FileTag2);
-gboolean ET_Add_File_Name_To_List               (ET_File *ETFile, File_Name *FileName);
-gboolean ET_Add_File_Tag_To_List                (ET_File *ETFile, File_Tag  *FileTag);
-gboolean ET_Add_File_To_History_List            (ET_File *ETFile);
-gboolean ET_Add_File_To_Artist_Album_File_List  (ET_File *ETFile);
+static gboolean ET_Add_File_Name_To_List (ET_File *ETFile,
+                                          File_Name *FileName);
+static gboolean ET_Add_File_Tag_To_List (ET_File *ETFile, File_Tag  *FileTag);
+static gboolean ET_Add_File_To_History_List (ET_File *ETFile);
+static gboolean ET_Add_File_To_Artist_Album_File_List (ET_File *ETFile);
 
 GList   *ET_Displayed_File_List_First           (void);
 GList   *ET_Displayed_File_List_Previous        (void);
 GList   *ET_Displayed_File_List_Next            (void);
 GList   *ET_Displayed_File_List_Last            (void);
 GList   *ET_Displayed_File_List_By_Etfile       (ET_File *ETFile);
-GList   *ET_Displayed_File_List_By_Position     (gulong pos_in_list);
-guint    ET_Displayed_File_List_Get_Length      (void);
-void     ET_Displayed_File_List_Number          (void);
+static guint ET_Displayed_File_List_Get_Length      (void);
+static void ET_Displayed_File_List_Number (void);
 
 gboolean ET_Set_Displayed_File_List (GList *ETFileList);
 
-gboolean ET_Read_File_Info (gchar *filename, ET_File_Info *ETFileInfo);
-//gboolean ET_File_Name_Convert_Character (gchar *filename_utf8);
-void     ET_File_Name_Check_Length (ET_File *ETFile, gchar *filename_utf8);
+static gboolean ET_Read_File_Info (const gchar *filename,
+                                   ET_File_Info *ETFileInfo);
 
-gint ET_Comp_Func_Sort_File_By_Ascending_Index_Key       (ET_File *ETFile1, ET_File *ETFile2);
-
-gint ET_Comp_Func_Sort_Artist_Item_By_Ascending_Artist   (GList *AlbumList1, GList *AlbumList2);
-gint ET_Comp_Func_Sort_Album_Item_By_Ascending_Album     (GList *etfilelist1, GList *etfilelist2);
-gint ET_Comp_Func_Sort_Etfile_Item_By_Ascending_Filename (ET_File *ETFile1, ET_File *ETFile2);
+static gint ET_Comp_Func_Sort_Artist_Item_By_Ascending_Artist (GList *AlbumList1,
+                                                               GList *AlbumList2);
+static gint ET_Comp_Func_Sort_Album_Item_By_Ascending_Album (GList *etfilelist1,
+                                                             GList *etfilelist2);
+static gint ET_Comp_Func_Sort_Etfile_Item_By_Ascending_Filename (ET_File *ETFile1,
+                                                                 ET_File *ETFile2);
+static gchar *ET_File_Name_Format_Extension (ET_File *ETFile);
 
 
 /*******************
@@ -184,7 +184,8 @@ gint ET_Comp_Func_Sort_Etfile_Item_By_Ascending_Filename (ET_File *ETFile1, ET_F
 /*
  * Returns the extension of the file
  */
-gchar *ET_Get_File_Extension (gchar *filename)
+static gchar *
+ET_Get_File_Extension (const gchar *filename)
 {
     if (filename)
         return strrchr(filename, '.');
@@ -197,7 +198,8 @@ gchar *ET_Get_File_Extension (gchar *filename)
  * Determine description of file using his extension.
  * If extension is NULL or not found into the tab, it returns the last entry for UNKNOWN_FILE.
  */
-ET_File_Description *ET_Get_File_Description_From_Extension (gchar *extension)
+static ET_File_Description *
+ET_Get_File_Description_From_Extension (const gchar *extension)
 {
     guint i;
 
@@ -218,7 +220,8 @@ ET_File_Description *ET_Get_File_Description_From_Extension (gchar *extension)
  * Determines first the extension. If extension is NULL or not found into the tab,
  * it returns the last entry for UNKNOWN_FILE.
  */
-ET_File_Description *ET_Get_File_Description (gchar *filename)
+static ET_File_Description *
+ET_Get_File_Description (const gchar *filename)
 {
     return ET_Get_File_Description_From_Extension(ET_Get_File_Extension(filename));
 }
@@ -227,7 +230,7 @@ ET_File_Description *ET_Get_File_Description (gchar *filename)
 /*
  * Returns TRUE if the file is supported, else returns FALSE
  */
-gboolean ET_File_Is_Supported (gchar *filename)
+gboolean ET_File_Is_Supported (const gchar *filename)
 {
     if (ET_Get_File_Description(filename)->FileType != UNKNOWN_FILE)
         return TRUE;
@@ -330,7 +333,8 @@ File_Tag *ET_File_Tag_Item_New (void)
 /*
  * Create a new File_Info structure
  */
-ET_File_Info *ET_File_Info_Item_New (void)
+static ET_File_Info *
+ET_File_Info_Item_New (void)
 {
     ET_File_Info *ETFileInfo;
 
@@ -355,7 +359,8 @@ ET_File *ET_File_Item_New (void)
 }
 
 
-void ET_Initialize_File_Name_Item (File_Name *FileName)
+static void
+ET_Initialize_File_Name_Item (File_Name *FileName)
 {
     if (FileName)
     {
@@ -368,7 +373,8 @@ void ET_Initialize_File_Name_Item (File_Name *FileName)
 }
 
 
-void ET_Initialize_File_Tag_Item (File_Tag *FileTag)
+static void
+ET_Initialize_File_Tag_Item (File_Tag *FileTag)
 {
     if (FileTag)
     {
@@ -396,7 +402,8 @@ void ET_Initialize_File_Tag_Item (File_Tag *FileTag)
 }
 
 
-void ET_Initialize_File_Info_Item (ET_File_Info *ETFileInfo)
+static void
+ET_Initialize_File_Info_Item (ET_File_Info *ETFileInfo)
 {
     if (ETFileInfo)
     {
@@ -406,7 +413,8 @@ void ET_Initialize_File_Info_Item (ET_File_Info *ETFileInfo)
 }
 
 
-void ET_Initialize_File_Item (ET_File *ETFile)
+static void
+ET_Initialize_File_Item (ET_File *ETFile)
 {
     if (ETFile)
     {
@@ -426,14 +434,16 @@ void ET_Initialize_File_Item (ET_File *ETFile)
 
 
 /* Key for each item of ETFileList */
-guint ET_File_Key_New (void)
+static guint
+ET_File_Key_New (void)
 {
     static guint ETFileKey = 0;
     return ++ETFileKey;
 }
 
 /* Key for Undo */
-guint ET_Undo_Key_New (void)
+static guint
+ET_Undo_Key_New (void)
 {
     static guint ETUndoKey = 0;
     return ++ETUndoKey;
@@ -663,7 +673,8 @@ gboolean ET_Create_Artist_Album_File_List (void)
  *  - "AlbumList" list is a list of ETFile items.
  * Note : use the function ET_Debug_Print_Artist_Album_List(...) to understand how it works, it needed...
  */
-gboolean ET_Add_File_To_Artist_Album_File_List (ET_File *ETFile)
+static gboolean
+ET_Add_File_To_Artist_Album_File_List (ET_File *ETFile)
 {
     if (ETFile)
     {
@@ -786,7 +797,6 @@ gboolean ET_Remove_File_From_File_List (ET_File *ETFile)
 
     // Remove the file from the ETArtistAlbumList list
     ET_Remove_File_From_Artist_Album_List(ETFile);
-    //ET_Debug_Print_Artist_Album_List(__FILE__,__LINE__,__FUNCTION__);
 
     // Remove the file from the ETFileDisplayedList list (if not already done)
     if ( (ETFileDisplayedList = g_list_find(ETCore->ETFileDisplayedList,ETFile)) )
@@ -835,7 +845,8 @@ gboolean ET_Remove_File_From_File_List (ET_File *ETFile)
 /*
  * Delete the corresponding file (allocated data was previously freed!). Return TRUE if deleted.
  */
-gboolean ET_Remove_File_From_Artist_Album_List (ET_File *ETFile)
+static gboolean
+ET_Remove_File_From_Artist_Album_List (ET_File *ETFile)
 {
     GList *ArtistList;
     GList *AlbumList;
@@ -883,7 +894,6 @@ gboolean ET_Remove_File_From_Artist_Album_List (ET_File *ETFile)
         }
         ArtistList = ArtistList->next;
     }
-    //ET_Debug_Print_Artist_Album_List(__FILE__,__LINE__,__FUNCTION__);
     return FALSE; // ETFile is NUL, or not found in the list
 }
 
@@ -897,7 +907,8 @@ gboolean ET_Remove_File_From_Artist_Album_List (ET_File *ETFile)
  * Sort the 'ETFileDisplayedList' following the 'Sorting_Type'
  * Note : Add also new sorting in 'Browser_List_Sort_Func'
  */
-void ET_Sort_Displayed_File_List (ET_Sorting_Type Sorting_Type)
+static void
+ET_Sort_Displayed_File_List (ET_Sorting_Type Sorting_Type)
 {
     ETCore->ETFileDisplayedList = ET_Sort_File_List(ETCore->ETFileDisplayedList,Sorting_Type);
 }
@@ -1047,7 +1058,7 @@ GList *ET_Sort_File_List (GList *ETFileList, ET_Sorting_Type Sorting_Type)
  */
 void ET_Sort_Displayed_File_List_And_Update_UI (ET_Sorting_Type Sorting_Type)
 {
-    if (!ETCore->ETFileList) return;
+    g_return_if_fail (ETCore->ETFileList != NULL);
 
     ET_Save_File_Data_From_UI(ETCore->ETFileDisplayed);
 
@@ -1782,18 +1793,10 @@ gint ET_Comp_Func_Sort_File_By_Descending_File_Samplerate (ET_File *ETFile1, ET_
 
 
 /*
- * Comparison function for sorting by ascending IndexKey (used mainly to have the ETFileSelectionList already sorted.)
- */
-gint ET_Comp_Func_Sort_File_By_Ascending_Index_Key (ET_File *ETFile1, ET_File *ETFile2)
-{
-    return (ETFile1->IndexKey - ETFile2->IndexKey);
-}
-
-
-/*
  * Comparison function for sorting by ascending artist in the ArtistAlbumList.
  */
-gint ET_Comp_Func_Sort_Artist_Item_By_Ascending_Artist (GList *AlbumList1, GList *AlbumList2)
+static gint ET_Comp_Func_Sort_Artist_Item_By_Ascending_Artist (GList *AlbumList1,
+                                                               GList *AlbumList2)
 {
     GList   *etfilelist1 = NULL,    *etfilelist2 = NULL;
     ET_File *etfile1 = NULL,        *etfile2 = NULL;
@@ -1820,7 +1823,9 @@ gint ET_Comp_Func_Sort_Artist_Item_By_Ascending_Artist (GList *AlbumList1, GList
 /*
  * Comparison function for sorting by ascending album in the ArtistAlbumList.
  */
-gint ET_Comp_Func_Sort_Album_Item_By_Ascending_Album (GList *etfilelist1, GList *etfilelist2)
+static gint
+ET_Comp_Func_Sort_Album_Item_By_Ascending_Album (GList *etfilelist1,
+                                                 GList *etfilelist2)
 {
     ET_File *etfile1,       *etfile2;
     gchar   *etfile1_album, *etfile2_album;
@@ -1845,7 +1850,9 @@ gint ET_Comp_Func_Sort_Album_Item_By_Ascending_Album (GList *etfilelist1, GList 
  * Comparison function for sorting etfile in the ArtistAlbumList.
  * FIX ME : should use the default sorting!
  */
-gint ET_Comp_Func_Sort_Etfile_Item_By_Ascending_Filename (ET_File *ETFile1, ET_File *ETFile2)
+static gint
+ET_Comp_Func_Sort_Etfile_Item_By_Ascending_Filename (ET_File *ETFile1,
+                                                     ET_File *ETFile2)
 {
 
     if (!ETFile1) return -1;
@@ -1921,27 +1928,6 @@ GList *ET_Displayed_File_List_By_Etfile (ET_File *ETFile)
 }
 
 /*
- * Returns the item of the "displayed list" which have the position 'pos_in_list' in the list (used into CDDB result list).
- * Range for 'pos_in_list' is 1 to ETFileDisplayedList_Length.
- */
-GList *ET_Displayed_File_List_By_Position (gulong pos_in_list)
-{
-    GList *etfilelist;
-    guint i = 1;
-
-    etfilelist = ET_Displayed_File_List_First();
-    while (etfilelist)
-    {
-        if (i == pos_in_list)
-            break;
-        etfilelist = ET_Displayed_File_List_Next();
-        i++;
-    }
-    ETCore->ETFileDisplayedList = etfilelist; // To "save" the position like in ET_Displayed_File_List_Next... (not very good - FIX ME)
-    return etfilelist;
-}
-
-/*
  * Just returns the current item of the "main list"
  */
 /*GList *ET_Displayed_File_List_Current (void)
@@ -1953,7 +1939,8 @@ GList *ET_Displayed_File_List_By_Position (gulong pos_in_list)
 /*
  * Renumber the list of displayed files (IndexKey) from 1 to n
  */
-void ET_Displayed_File_List_Number (void)
+static void
+ET_Displayed_File_List_Number (void)
 {
     GList *list = NULL;
     guint i = 1;
@@ -1969,7 +1956,8 @@ void ET_Displayed_File_List_Number (void)
 /*
  * Returns the length of the list of displayed files
  */
-guint ET_Displayed_File_List_Get_Length (void)
+static guint
+ET_Displayed_File_List_Get_Length (void)
 {
     GList *list = NULL;
 
@@ -2024,7 +2012,7 @@ gboolean ET_Free_File_List (void)
 {
     GList *list = NULL;
 
-    if (!ETCore || !ETCore->ETFileList) return FALSE;
+    g_return_val_if_fail (ETCore != NULL || ETCore->ETFileList != NULL, FALSE);
 
     list = g_list_last(ETCore->ETFileList);
     while (list)
@@ -2048,10 +2036,22 @@ gboolean ET_Free_File_List_Item (ET_File *ETFile)
     if (ETFile)
     {
         /* Frees the lists */
-        ET_Free_File_Name_List(ETFile->FileNameList);
-        ET_Free_File_Name_List(ETFile->FileNameListBak);
-        ET_Free_File_Tag_List (ETFile->FileTagList);
-        ET_Free_File_Tag_List (ETFile->FileTagListBak);
+        if (ETFile->FileNameList)
+        {
+            ET_Free_File_Name_List(ETFile->FileNameList);
+        }
+        if (ETFile->FileNameListBak)
+        {
+            ET_Free_File_Name_List(ETFile->FileNameListBak);
+        }
+        if (ETFile->FileTagList)
+        {
+            ET_Free_File_Tag_List (ETFile->FileTagList);
+        }
+        if (ETFile->FileTagListBak)
+        {
+            ET_Free_File_Tag_List (ETFile->FileTagListBak);
+        }
         /* Frees infos of ETFileInfo */
         ET_Free_File_Info_Item (ETFile->ETFileInfo);
         g_free(ETFile->ETFileExtension);
@@ -2069,7 +2069,7 @@ gboolean ET_Free_File_Name_List (GList *FileNameList)
 {
     GList *list;
 
-    if (!FileNameList) return FALSE;
+    g_return_val_if_fail (FileNameList != NULL, FALSE);
 
     list = g_list_last(FileNameList);
     while (list)
@@ -2091,7 +2091,7 @@ gboolean ET_Free_File_Name_List (GList *FileNameList)
  */
 gboolean ET_Free_File_Name_Item (File_Name *FileName)
 {
-    if (!FileName) return FALSE;
+    g_return_val_if_fail (FileName != NULL, FALSE);
 
     g_free(FileName->value);
     g_free(FileName->value_utf8);
@@ -2105,11 +2105,12 @@ gboolean ET_Free_File_Name_Item (File_Name *FileName)
 /*
  * Frees the full list: GList *TagList.
  */
-gboolean ET_Free_File_Tag_List (GList *FileTagList)
+static gboolean
+ET_Free_File_Tag_List (GList *FileTagList)
 {
     GList *list;
 
-    if (!FileTagList) return FALSE;
+    g_return_val_if_fail (FileTagList != NULL, FALSE);
 
     list = g_list_last(FileTagList);
     while (list)
@@ -2129,7 +2130,8 @@ gboolean ET_Free_File_Tag_List (GList *FileTagList)
 /*
  * Frees the list of 'other' field in a File_Tag item (contains attached gchar data).
  */
-gboolean ET_Free_File_Tag_Item_Other_Field (File_Tag *FileTag)
+static gboolean
+ET_Free_File_Tag_Item_Other_Field (File_Tag *FileTag)
 {
     GList *other = FileTag->other;
 
@@ -2151,7 +2153,7 @@ gboolean ET_Free_File_Tag_Item_Other_Field (File_Tag *FileTag)
  */
 gboolean ET_Free_File_Tag_Item (File_Tag *FileTag)
 {
-    if (!FileTag) return FALSE;
+    g_return_val_if_fail (FileTag != NULL, FALSE);
 
     g_free(FileTag->title);
     g_free(FileTag->artist);
@@ -2182,9 +2184,10 @@ gboolean ET_Free_File_Tag_Item (File_Tag *FileTag)
 /*
  * Frees a File_Info item.
  */
-gboolean ET_Free_File_Info_Item (ET_File_Info *ETFileInfo)
+static gboolean
+ET_Free_File_Info_Item (ET_File_Info *ETFileInfo)
 {
-    if (!ETFileInfo) return FALSE;
+    g_return_val_if_fail (ETFileInfo != NULL, FALSE);
 
     g_free(ETFileInfo->mpc_profile);
     g_free(ETFileInfo->mpc_version);
@@ -2198,11 +2201,13 @@ gboolean ET_Free_File_Info_Item (ET_File_Info *ETFileInfo)
 /*
  * History list contains only pointers, so no data to free except the history structure.
  */
-gboolean ET_Free_History_File_List (void)
+static gboolean
+ET_Free_History_File_List (void)
 {
     GList *list;
 
-    if (!ETCore || !ETCore->ETHistoryFileList) return FALSE;
+    g_return_val_if_fail (ETCore != NULL || ETCore->ETHistoryFileList != NULL,
+                          FALSE);
 
     ETCore->ETHistoryFileList = g_list_first(ETCore->ETHistoryFileList);
     list = ETCore->ETHistoryFileList;
@@ -2221,9 +2226,11 @@ gboolean ET_Free_History_File_List (void)
 /*
  * "Display" list contains only pointers, so NOTHING to free
  */
-gboolean ET_Free_Displayed_File_List (void)
+static gboolean
+ET_Free_Displayed_File_List (void)
 {
-    if (!ETCore || !ETCore->ETFileDisplayedList) return FALSE;
+    g_return_val_if_fail (ETCore != NULL ||
+                          ETCore->ETFileDisplayedList != NULL, FALSE);
 
     ETCore->ETFileDisplayedList = g_list_first(ETCore->ETFileDisplayedList);
     ETCore->ETFileDisplayedList = NULL;
@@ -2235,13 +2242,15 @@ gboolean ET_Free_Displayed_File_List (void)
 /*
  * ArtistAlbum list contains 3 levels of lists
  */
-gboolean ET_Free_Artist_Album_File_List (void)
+static gboolean
+ET_Free_Artist_Album_File_List (void)
 {
     GList *ArtistList;
     GList *AlbumList;
     GList *etfilelist;
 
-    if (!ETCore || !ETCore->ETArtistAlbumFileList) return FALSE;
+    g_return_val_if_fail (ETCore != NULL ||
+                          ETCore->ETArtistAlbumFileList != NULL, FALSE);
 
     ArtistList = ETCore->ETArtistAlbumFileList;
     while (ArtistList)
@@ -2277,7 +2286,8 @@ gboolean ET_Free_Artist_Album_File_List (void)
 /*
  * Duplicate the 'other' list
  */
-gboolean ET_Copy_File_Tag_Item_Other_Field (ET_File *ETFile, File_Tag *FileTag)
+static gboolean
+ET_Copy_File_Tag_Item_Other_Field (ET_File *ETFile, File_Tag *FileTag)
 {
     File_Tag *FileTagCur;
     GList *list = NULL;
@@ -2301,8 +2311,9 @@ gboolean ET_Copy_File_Tag_Item (ET_File *ETFile, File_Tag *FileTag)
 {
     File_Tag *FileTagCur;
 
-    if (!ETFile || !ETFile->FileTag || !(File_Tag *)(ETFile->FileTag)->data || !FileTag)
-        return FALSE;
+    g_return_val_if_fail (ETFile != NULL || ETFile->FileTag != NULL ||
+                          (File_Tag *)(ETFile->FileTag)->data != NULL ||
+                          FileTag != NULL, FALSE);
 
     /* The data to duplicate to FileTag */
     FileTagCur = (File_Tag *)(ETFile->FileTag)->data;
@@ -2477,24 +2488,13 @@ gboolean ET_Copy_File_Tag_Item (ET_File *ETFile, File_Tag *FileTag)
 
 
 /*
- * Set the value of a field of a FileName item (for ex, value of FileName->value)
- * Must be used only for the 'gchar *' components (Only used for the filename)
- */
-gboolean ET_Set_Field_File_Name_Item (gchar **FileNameField, gchar *value)
-{
-    return ET_Set_Field_File_Tag_Item(FileNameField,value);
-}
-
-
-/*
  * Fill content of a FileName item according to the filename passed in argument (UTF-8 filename or not)
  * Calculate also the collate key.
  * It treats numbers intelligently so that "file1" "file10" "file5" is sorted as "file1" "file5" "file10"
  */
 gboolean ET_Set_Filename_File_Name_Item (File_Name *FileName, gchar *filename_utf8, gchar *filename)
 {
-    if (!FileName)
-        return FALSE;
+    g_return_val_if_fail (FileName != FALSE, FALSE);
 
     if (filename_utf8 && filename)
     {
@@ -2524,9 +2524,9 @@ gboolean ET_Set_Filename_File_Name_Item (File_Name *FileName, gchar *filename_ut
  * Set the value of a field of a FileTag item (for ex, value of FileTag->title)
  * Must be used only for the 'gchar *' components
  */
-gboolean ET_Set_Field_File_Tag_Item (gchar **FileTagField, gchar *value)
+gboolean ET_Set_Field_File_Tag_Item (gchar **FileTagField, const gchar *value)
 {
-    if (!FileTagField) return FALSE;
+    g_return_val_if_fail (FileTagField != NULL, FALSE);
 
     if (*FileTagField != NULL)
     {
@@ -2551,7 +2551,7 @@ gboolean ET_Set_Field_File_Tag_Item (gchar **FileTagField, gchar *value)
  */
 gboolean ET_Set_Field_File_Tag_Picture (Picture **FileTagField, Picture *pic)
 {
-    if (!FileTagField) return FALSE;
+    g_return_val_if_fail (FileTagField != NULL, FALSE);
 
     if (*FileTagField != NULL)
     {
@@ -2581,9 +2581,9 @@ void ET_Display_File_Data_To_UI (ET_File *ETFile)
     gchar *cur_filename_utf8;
     gchar *msg;
 
-    if (!ETFile
-    ||  !((GList *)ETFile->FileNameCur)->data ) // For the case where ETFile is an "empty" structure
-        return;
+    g_return_if_fail (ETFile != NULL ||
+                      ((GList *)ETFile->FileNameCur)->data != NULL);
+                      /* For the case where ETFile is an "empty" structure. */
 
     cur_filename      = ((File_Name *)((GList *)ETFile->FileNameCur)->data)->value;
     cur_filename_utf8 = ((File_Name *)((GList *)ETFile->FileNameCur)->data)->value_utf8;
@@ -2716,13 +2716,14 @@ void ET_Display_File_Data_To_UI (ET_File *ETFile)
  * Toggle visibility of the small status icon if filename is read-only or not found.
  * Show the position of the current file in the list, by using the index and list length.
  */
-void ET_Display_File_And_List_Status_To_UI (ET_File *ETFile)
+static void
+ET_Display_File_And_List_Status_To_UI (ET_File *ETFile)
 {
     FILE *file;
     gchar *text;
     gchar *cur_filename;
 
-    if (!ETFile) return;
+    g_return_if_fail (ETFile != NULL);
 
     cur_filename = ((File_Name *)((GList *)ETFile->FileNameCur)->data)->value;
 
@@ -2756,7 +2757,8 @@ void ET_Display_File_And_List_Status_To_UI (ET_File *ETFile)
     g_free(text);
 }
 
-void ET_Display_Filename_To_UI (ET_File *ETFile)
+static void
+ET_Display_Filename_To_UI (ET_File *ETFile)
 {
     gchar *pos;
     gchar *new_filename_utf8;
@@ -2764,7 +2766,7 @@ void ET_Display_Filename_To_UI (ET_File *ETFile)
     gchar *dirname_utf8;
     gchar *text;
 
-    if (!ETFile) return;
+    g_return_if_fail (ETFile != NULL);
 
     new_filename_utf8 = ((File_Name *)((GList *)ETFile->FileNameNew)->data)->value_utf8;
 
@@ -2801,7 +2803,8 @@ void ET_Display_Filename_To_UI (ET_File *ETFile)
  * Display all tag infos (tags fields) into entry boxes of the user interface.
  * These data have the same structure for all files.
  */
-gboolean ET_Display_File_Tag_To_UI (ET_File *ETFile)
+static gboolean
+ET_Display_File_Tag_To_UI (ET_File *ETFile)
 {
     File_Tag *FileTag = NULL;
     //GtkTextBuffer *textbuffer;
@@ -3010,7 +3013,8 @@ gboolean ET_Display_File_Tag_To_UI (ET_File *ETFile)
 /*
  * "Default" way to display File Info to the user interface.
  */
-gboolean ET_Display_File_Info_To_UI(ET_File_Info *ETFileInfo)
+static gboolean
+ET_Display_File_Info_To_UI(ET_File_Info *ETFileInfo)
 {
     gchar *text;
     gchar *time  = NULL;
@@ -3150,7 +3154,8 @@ void ET_Save_File_Data_From_UI (ET_File *ETFile)
  * Note : it builds new filename (with path) from strings encoded into file system
  *        encoding, not UTF-8 (it preserves file system encoding of parent directories).
  */
-gboolean ET_Save_File_Name_From_UI (ET_File *ETFile, File_Name *FileName)
+static gboolean
+ET_Save_File_Name_From_UI (ET_File *ETFile, File_Name *FileName)
 {
     gchar *filename_new = NULL;
     gchar *dirname = NULL;
@@ -3238,7 +3243,8 @@ gboolean ET_Save_File_Name_From_UI (ET_File *ETFile, File_Name *FileName)
  * Do the same thing of ET_Save_File_Name_From_UI, but without getting the
  * data from the UI.
  */
-gboolean ET_Save_File_Name_Internal (ET_File *ETFile, File_Name *FileName)
+static gboolean
+ET_Save_File_Name_Internal (ET_File *ETFile, File_Name *FileName)
 {
     gchar *filename_new = NULL;
     gchar *dirname = NULL;
@@ -3303,7 +3309,8 @@ gboolean ET_Save_File_Name_Internal (ET_File *ETFile, File_Name *FileName)
 /*
  * Load values, entered into entries of the UI, into a File_Tag structure which had been newly created.
  */
-gboolean ET_Save_File_Tag_From_UI (File_Tag *FileTag)
+static gboolean
+ET_Save_File_Tag_From_UI (File_Tag *FileTag)
 {
     gchar *buffer = NULL;
     //GtkTextBuffer *textbuffer;
@@ -3554,7 +3561,8 @@ gboolean ET_Save_File_Tag_From_UI (File_Tag *FileTag)
 /*
  * Do the same thing of ET_Save_File_Tag_From_UI without getting the data from the UI.
  */
-gboolean ET_Save_File_Tag_Internal (ET_File *ETFile, File_Tag *FileTag)
+static gboolean
+ET_Save_File_Tag_Internal (ET_File *ETFile, File_Tag *FileTag)
 {
     File_Tag *FileTagCur;
 
@@ -3777,7 +3785,7 @@ gboolean ET_Save_File_Tag_To_HD (ET_File *ETFile)
     struct utimbuf utimbufbuf;
     gboolean file_set_properties;
 
-    if (!ETFile) return FALSE;
+    g_return_val_if_fail (ETFile != NULL, FALSE);
 
     cur_filename      = ((File_Name *)(ETFile->FileNameCur)->data)->value;
     cur_filename_utf8 = ((File_Name *)(ETFile->FileNameCur)->data)->value_utf8;
@@ -3946,7 +3954,7 @@ gboolean ET_Manage_Changes_Of_File_Data (ET_File *ETFile, File_Name *FileName, F
 {
     gboolean undo_added = FALSE;
 
-    if (!ETFile) return FALSE;
+    g_return_val_if_fail (ETFile != NULL, FALSE);
 
     /*
      * Detect changes of filename and generate the filename undo list
@@ -3994,7 +4002,8 @@ gboolean ET_Manage_Changes_Of_File_Data (ET_File *ETFile, File_Name *FileName, F
  *  - returns TRUE if there aren't the same
  *  - else returns FALSE
  */
-gboolean ET_Detect_Changes_Of_File_Name (File_Name *FileName1, File_Name *FileName2)
+static gboolean
+ET_Detect_Changes_Of_File_Name (File_Name *FileName1, File_Name *FileName2)
 {
     gchar *filename1_ck;
     gchar *filename2_ck;
@@ -4034,8 +4043,7 @@ gboolean ET_Detect_Changes_Of_File_Tag (File_Tag *FileTag1, File_Tag *FileTag2)
     Picture *pic1;
     Picture *pic2;
 
-    if ( !FileTag1 && !FileTag2 )
-        return FALSE;
+    g_return_val_if_fail (FileTag1 != NULL && FileTag2 != NULL, FALSE);
 
     if ( ( FileTag1 && !FileTag2)
       || (!FileTag1 &&  FileTag2) )
@@ -4164,7 +4172,8 @@ gboolean ET_Detect_Changes_Of_File_Tag (File_Tag *FileTag1, File_Tag *FileTag2)
 /*
  * Add a FileName item to the history list of ETFile
  */
-gboolean ET_Add_File_Name_To_List (ET_File *ETFile, File_Name *FileName)
+static gboolean
+ET_Add_File_Name_To_List (ET_File *ETFile, File_Name *FileName)
 {
     GList *cut_list = NULL;
 
@@ -4196,7 +4205,8 @@ gboolean ET_Add_File_Name_To_List (ET_File *ETFile, File_Name *FileName)
 /*
  * Add a FileTag item to the history list of ETFile
  */
-gboolean ET_Add_File_Tag_To_List (ET_File *ETFile, File_Tag *FileTag)
+static gboolean
+ET_Add_File_Tag_To_List (ET_File *ETFile, File_Tag *FileTag)
 {
     GList *cut_list = NULL;
 
@@ -4224,11 +4234,12 @@ gboolean ET_Add_File_Tag_To_List (ET_File *ETFile, File_Tag *FileTag)
 /*
  * Add a ETFile item to the main undo list of files
  */
-gboolean ET_Add_File_To_History_List (ET_File *ETFile)
+static gboolean
+ET_Add_File_To_History_List (ET_File *ETFile)
 {
     ET_History_File *ETHistoryFile;
 
-    if (!ETFile) return FALSE;
+    g_return_val_if_fail (ETFile != NULL, FALSE);
 
     ETHistoryFile = g_malloc0(sizeof(ET_History_File));
     ETHistoryFile->ETFile = ETFile;
@@ -4255,8 +4266,7 @@ gboolean ET_Undo_File_Data (ET_File *ETFile)
     gboolean has_filetag_undo_data  = FALSE;
     guint    filename_key, filetag_key, undo_key;
 
-    if (!ETFile)
-        return FALSE;
+    g_return_val_if_fail (ETFile != NULL, FALSE);
 
     /* Find the valid key */
     if (ETFile->FileNameNew->prev && ETFile->FileNameNew->data)
@@ -4298,7 +4308,7 @@ gboolean ET_File_Data_Has_Undo_Data (ET_File *ETFile)
     gboolean has_filename_undo_data = FALSE;
     gboolean has_filetag_undo_data  = FALSE;
 
-    if (!ETFile) return FALSE;
+    g_return_val_if_fail (ETFile != NULL, FALSE);
 
     if (ETFile->FileNameNew && ETFile->FileNameNew->prev) has_filename_undo_data = TRUE;
     if (ETFile->FileTag && ETFile->FileTag->prev)         has_filetag_undo_data  = TRUE;
@@ -4316,8 +4326,7 @@ gboolean ET_Redo_File_Data (ET_File *ETFile)
     gboolean has_filetag_redo_data  = FALSE;
     guint    filename_key, filetag_key, undo_key;
 
-    if (!ETFile)
-        return FALSE;
+    g_return_val_if_fail (ETFile != NULL, FALSE);
 
     /* Find the valid key */
     if (ETFile->FileNameNew->next && ETFile->FileNameNew->next->data)
@@ -4359,7 +4368,7 @@ gboolean ET_File_Data_Has_Redo_Data (ET_File *ETFile)
     gboolean has_filename_redo_data = FALSE;
     gboolean has_filetag_redo_data  = FALSE;
 
-    if (!ETFile) return FALSE;
+    g_return_val_if_fail (ETFile != NULL, FALSE);
 
     if (ETFile->FileNameNew && ETFile->FileNameNew->next) has_filename_redo_data = TRUE;
     if (ETFile->FileTag && ETFile->FileTag->next)         has_filetag_redo_data  = TRUE;
@@ -4377,7 +4386,8 @@ ET_File *ET_Undo_History_File_Data (void)
     ET_File *ETFile;
     ET_History_File *ETHistoryFile;
 
-    if (!ETCore->ETHistoryFileList || !ET_History_File_List_Has_Undo_Data()) return NULL;
+    g_return_val_if_fail (ETCore->ETHistoryFileList != NULL ||
+                          !ET_History_File_List_Has_Undo_Data (), NULL);
 
     ETHistoryFile = (ET_History_File *)ETCore->ETHistoryFileList->data;
     ETFile        = (ET_File *)ETHistoryFile->ETFile;
@@ -4452,7 +4462,7 @@ gboolean ET_Check_If_File_Is_Saved (ET_File *ETFile)
     File_Tag  *FileTag     = NULL;
     File_Name *FileNameNew = NULL;
 
-    if (!ETFile) return TRUE;
+    g_return_val_if_fail (ETFile != NULL, TRUE);
 
     if (ETFile->FileTag)
         FileTag     = ETFile->FileTag->data;
@@ -4509,11 +4519,14 @@ gboolean ET_Check_If_All_Files_Are_Saved (void)
  * Set to TRUE the value of 'FileTag->saved' for the File_Tag item passed in parameter.
  * And set ALL other values of the list to FALSE.
  */
-void Set_Saved_Value_Of_File_Tag (File_Tag *FileTag, gboolean saved)
+static void
+Set_Saved_Value_Of_File_Tag (File_Tag *FileTag, gboolean saved)
 {
     if (FileTag) FileTag->saved = saved;
 }
-void ET_Mark_File_Tag_As_Saved (ET_File *ETFile)
+
+static void
+ET_Mark_File_Tag_As_Saved (ET_File *ETFile)
 {
     File_Tag *FileTag;
     GList *FileTagList;
@@ -4525,14 +4538,6 @@ void ET_Mark_File_Tag_As_Saved (ET_File *ETFile)
 }
 
 
-/*
- * Set to TRUE the value of 'FileName->saved' for the File_Name item passed in parameter.
- * And set ALL other values of the list to FALSE.
- */
-void Set_Saved_Value_Of_File_Name (File_Name *FileName, gboolean saved)
-{
-    if (FileName) FileName->saved = saved;
-}
 void ET_Mark_File_Name_As_Saved (ET_File *ETFile)
 {
     File_Name *FileNameNew;
@@ -4548,7 +4553,8 @@ void ET_Mark_File_Name_As_Saved (ET_File *ETFile)
 /*
  * Currently, it's a way by default to fill file size into ET_File_Info structure
  */
-gboolean ET_Read_File_Info (gchar *filename, ET_File_Info *ETFileInfo)
+static gboolean
+ET_Read_File_Info (const gchar *filename, ET_File_Info *ETFileInfo)
 {
     FILE *file;
 
@@ -4670,7 +4676,8 @@ gchar *ET_File_Name_Generate (ET_File *ETFile, gchar *new_file_name_utf8)
 #endif
 
 
-gchar *ET_File_Name_Format_Extension (ET_File *ETFile)
+static gchar *
+ET_File_Name_Format_Extension (ET_File *ETFile)
 {
     // Convert filename extension (lower/upper/no change)
     if (FILENAME_EXTENSION_LOWER_CASE)
@@ -4681,48 +4688,6 @@ gchar *ET_File_Name_Format_Extension (ET_File *ETFile)
 
     else // FILENAME_EXTENSION_NO_CHANGE
         return g_strdup(ETFile->ETFileExtension);
-}
-
-
-/*
- * Check if the basename+extension of the file doesn't exceed following limits :
- *   - ogg filenames musn't exceed 255-6 characters (because we use mkstemp)
- *   - other filenames musn't exceed 255 characters
- * Parameters:
- *    - 'filename_utf8' filename without the extension
- */
-void ET_File_Name_Check_Length (ET_File *ETFile, gchar *filename_utf8)
-{
-    ET_File_Description *ETFileDescription;
-    gchar *basename;
-    gint  exceed_size;
-
-
-    if (!ETFile || !filename_utf8) return;
-
-    basename = g_path_get_basename(filename_utf8); // If it contains directories...
-
-    ETFileDescription = ETFile->ETFileDescription;
-    switch (ETFileDescription->FileType)
-    {
-#ifdef ENABLE_OGG
-        case OGG_FILE:
-            if ( (exceed_size = (strlen(basename) - 245)) > 0 ) // 255 - 4 (extension) - 6 (mkstemp)
-            {
-                Log_Print(LOG_ERROR,_("The filename '%s' exceeds %d characters and will be truncated"), filename_utf8, 245);
-                filename_utf8[strlen(filename_utf8) - exceed_size] = '\0';
-            }
-            break;
-#endif
-        default:
-            if ( (exceed_size = (strlen(basename) - 251)) > 0 ) // 255 - 4 (extension)
-            {
-                Log_Print(LOG_ERROR,_("The filename '%s' exceeds %d characters and will be truncated"), filename_utf8, 251);
-                filename_utf8[strlen(filename_utf8) - exceed_size] = '\0';
-            }
-            break;
-    }
-    g_free(basename);
 }
 
 
@@ -4781,12 +4746,13 @@ gboolean ET_File_Name_Convert_Character (gchar *filename_utf8)
  * Returns the number of file in the directory of the selected file.
  * Parameter "path" should be in UTF-8
  */
-guint ET_Get_Number_Of_Files_In_Directory (gchar *path_utf8)
+guint
+ET_Get_Number_Of_Files_In_Directory (const gchar *path_utf8)
 {
     GList *etfilelist;
     guint  count = 0;
 
-    if (!path_utf8) return count;
+    g_return_val_if_fail (path_utf8 != NULL, count);
 
     etfilelist = g_list_first(ETCore->ETFileList);
     while (etfilelist)
@@ -4804,191 +4770,4 @@ guint ET_Get_Number_Of_Files_In_Directory (gchar *path_utf8)
     }
 
     return count;
-}
-
-
-/***********************
- * Debugging functions *
- ***********************/
-
-void ET_Debug_Print_File (ET_File *ETFile, gchar *file, gint line, gchar *function)
-{
-    GList *etfilelist = NULL;
-
-    if (ETFile)
-        etfilelist = g_list_append(etfilelist,ETFile);
-    ET_Debug_Print_File_List(etfilelist,file,line,function);
-    g_list_free(etfilelist);
-}
-
-
-/*
- * Functions for DEBUGGING ONLY
- * ET_Print_File_List => show list of filename
- * Parameters: ETFileList : the list of files to display
- *             file = __FILE__
- *             line = __LINE__
- *             function = __FUNCTION__
- */
-void ET_Debug_Print_File_List (GList *ETFileList, gchar *file, gint line, gchar *function)
-{
-    gint efl_item = 1;
-    gint fnl_item = 1;
-    gint ftl_item = 1;
-    gint etfilelist_length;
-    gint filenamelist_length;
-    gint filetaglist_length;
-    GList *etfilelist;
-    GList *filenamelist;
-    GList *filetaglist;
-    char str[50];
-    struct tm *tms;
-
-
-    g_print("\n#### File list from %s:%d - start ####\n",file,line);
-    g_print("#### Function : %s ####\n",function);
-    if (ETFileList)
-        etfilelist = g_list_first(ETFileList);
-    else
-        etfilelist = g_list_first(ETCore->ETFileList);
-    etfilelist_length = g_list_length(etfilelist);
-    while (etfilelist)
-    {
-        time_t time = ((ET_File *)etfilelist->data)->FileModificationTime;
-        tms = localtime(&time);
-        strftime(str,sizeof(str),"%Y.%m.%d %X",tms); // Time without date in current locale
-
-        g_print("#> ETFile %d/%d (%p)\n",efl_item,etfilelist_length,(ET_File *)etfilelist->data);
-        g_print("|--- IndexKey : '%d'\n",((ET_File *)etfilelist->data)->IndexKey);
-        g_print("|--- time     : '%s'\n", (char *)str);
-        g_print("|--- file_cur : '%s'\n",((File_Name *)((ET_File *)etfilelist->data)->FileNameCur->data)->value_utf8);
-        g_print("|--- file_new : '%s'\n",((File_Name *)((ET_File *)etfilelist->data)->FileNameNew->data)->value_utf8);
-        g_print("|--- saved    : '%d'\n",((File_Name *)((ET_File *)etfilelist->data)->FileNameNew->data)->saved);
-
-        filenamelist = g_list_first( ((ET_File *)etfilelist->data)->FileNameList );
-        filenamelist_length = g_list_length(filenamelist);
-        fnl_item = 1;
-        while (filenamelist)
-        {
-            g_print("|--> File_Name : %d/%d %s\n",fnl_item,filenamelist_length,(filenamelist==((ET_File *)etfilelist->data)->FileNameNew)?"<<CURRENT>>":"");
-            g_print("|    |-> key     : '%d'\n",((File_Name *)filenamelist->data)->key);
-            g_print("|    |-> filename: '%s'\n",((File_Name *)filenamelist->data)->value_utf8);
-
-            filenamelist = filenamelist->next;
-            fnl_item++;
-        }
-
-        g_print("|\n");
-
-        filetaglist = g_list_first( ((ET_File *)etfilelist->data)->FileTagList );
-        filetaglist_length = g_list_length(filetaglist);
-        ftl_item = 1;
-        while (filetaglist)
-        {
-            g_print("|--> File_Tag : %d/%d %s\n",ftl_item,filetaglist_length,(filetaglist==((ET_File *)etfilelist->data)->FileTag)?"<<CURRENT>>":"");
-            g_print("|    |-> key         : '%d'\n",((File_Tag *)filetaglist->data)->key);
-            g_print("|    |-> saved       : '%d'\n",((File_Tag *)filetaglist->data)->saved);
-            g_print("|    |-> title       : '%s'\n",((File_Tag *)filetaglist->data)->title       ? ((File_Tag *)filetaglist->data)->title        : "");
-            g_print("|    |-> artist      : '%s'\n",((File_Tag *)filetaglist->data)->artist      ? ((File_Tag *)filetaglist->data)->artist       : "");
-            g_print("|    |-> album_artist: '%s'\n",((File_Tag *)filetaglist->data)->album_artist? ((File_Tag *)filetaglist->data)->album_artist : "");
-            g_print("|    |-> album       : '%s'\n",((File_Tag *)filetaglist->data)->album       ? ((File_Tag *)filetaglist->data)->album        : "");
-            g_print("|    |-> disc_number : '%s'\n",((File_Tag *)filetaglist->data)->disc_number ? ((File_Tag *)filetaglist->data)->disc_number  : "");
-            g_print("|    |-> year        : '%s'\n",((File_Tag *)filetaglist->data)->year        ? ((File_Tag *)filetaglist->data)->year         : "");
-            g_print("|    |-> track       : '%s'\n",((File_Tag *)filetaglist->data)->track       ? ((File_Tag *)filetaglist->data)->track        : "");
-            g_print("|    |-> track_total : '%s'\n",((File_Tag *)filetaglist->data)->track_total ? ((File_Tag *)filetaglist->data)->track_total  : "");
-            g_print("|    |-> genre       : '%s'\n",((File_Tag *)filetaglist->data)->genre       ? ((File_Tag *)filetaglist->data)->genre        : "");
-            g_print("|    |-> comment     : '%s'\n",((File_Tag *)filetaglist->data)->comment     ? ((File_Tag *)filetaglist->data)->comment      : "");
-            g_print("|    |-> composer    : '%s'\n",((File_Tag *)filetaglist->data)->composer    ? ((File_Tag *)filetaglist->data)->composer     : "");
-            g_print("|    |-> orig_artist : '%s'\n",((File_Tag *)filetaglist->data)->orig_artist ? ((File_Tag *)filetaglist->data)->orig_artist  : "");
-            g_print("|    |-> copyright   : '%s'\n",((File_Tag *)filetaglist->data)->copyright   ? ((File_Tag *)filetaglist->data)->copyright    : "");
-            g_print("|    |-> url         : '%s'\n",((File_Tag *)filetaglist->data)->url         ? ((File_Tag *)filetaglist->data)->url          : "");
-            g_print("|    |-> encoded_by  : '%s'\n",((File_Tag *)filetaglist->data)->encoded_by  ? ((File_Tag *)filetaglist->data)->encoded_by   : "");
-            g_print("|    |-> compilation : '%s'\n",((File_Tag *)filetaglist->data)->compilation ? ((File_Tag *)filetaglist->data)->compilation  : "");
-
-            filetaglist = filetaglist->next;
-            ftl_item++;
-        }
-
-        g_print("|\n");
-
-        etfilelist = etfilelist->next;
-        efl_item++;
-    }
-    g_print("#### File list from %s:%d - end   ####\n",file,line);
-}
-
-// Ex : ET_Debug_Print_Artist_Album_List(__FILE__,__LINE__,__FUNCTION__);
-void ET_Debug_Print_Artist_Album_List (gchar *file, gint line, gchar *function)
-{
-    GList *ArtistList;
-    GList *AlbumList;
-    GList *etfilelist;
-    ET_File *etfile;
-    gint artist_item;
-    gint artist_length;
-    gint album_item;
-    gint album_length;
-    gint etfile_item;
-    gint etfile_length;
-
-    g_print("\n#### Artist Album list from %s:%d - start ####\n",file,line);
-    g_print("#### Function : %s ####\n",function);
-    ArtistList = g_list_first(ETCore->ETArtistAlbumFileList);
-    artist_length = g_list_length(ArtistList);
-    artist_item = 1;
-    while (ArtistList)
-    {
-        g_print("#> Artist %d/%d \n",artist_item,artist_length);
-        AlbumList = g_list_first((GList *)ArtistList->data);
-        album_length = g_list_length(AlbumList);
-        album_item = 1;
-        while (AlbumList)
-        {
-            g_print(" |-> Album %d/%d \n",album_item,album_length);
-            etfilelist = g_list_first((GList *)AlbumList->data);
-            etfile_length = g_list_length(etfilelist);
-            etfile_item = 1;
-            while (etfilelist)
-            {
-                etfile = (ET_File *)etfilelist->data;
-                g_print(" |   |-> ETFile %d/%d (%p)\n",etfile_item,etfile_length,etfile);
-                g_print(" |   |   |-> file     : '%s'\n",((File_Name *)etfile->FileNameCur->data)->value_utf8);
-                g_print(" |   |   |-> artist   : '%s'\n",((File_Tag *)etfile->FileTag->data)->artist ? ((File_Tag *)etfile->FileTag->data)->artist : "");
-                g_print(" |   |   |-> album    : '%s'\n",((File_Tag *)etfile->FileTag->data)->album  ? ((File_Tag *)etfile->FileTag->data)->album  : "");
-
-                etfilelist = etfilelist->next;
-                etfile_item++;
-            }
-
-            AlbumList = AlbumList->next;
-            album_item++;
-        }
-
-        ArtistList = ArtistList->next;
-        artist_item++;
-    }
-    g_print("#### Artist Album list from %s:%d - end   ####\n",file,line);
-}
-
-
-#include "time.h"
-void ET_Debug_Print_Time (gchar *msg)
-{
-    struct tm *tms;
-    time_t nowtime;
-    char str[50];
-    //char *pstr = str;
-
-    nowtime = time(NULL);
-    tms = localtime(&nowtime);
-    strftime(str,sizeof(str),"%X",tms); // Time without date in current locale
-    //strftime(str,sizeof(str),"%x",ptr); // Date without time in current locale
-
-    if (msg)
-    {
-        g_print("## %s %s ##\n",msg,str);
-    }else
-    {
-        g_print("## %s ##\n",str);
-    }
 }
