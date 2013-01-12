@@ -100,7 +100,6 @@
  * PART        : a division within a work; eg, a movement of a symphony. Some tracks contain several parts. Use a single PART tag for each part contained in a track. ie, PART="Oh sole mio"
  * PARTNUMBER  : The part number goes in here. You can use any format you like, such as Roman numerals, regular numbers, or whatever. The numbers should be entered in such a way that an alphabetical sort on this tag will correctly show the proper ordering of all the oggs that contain the contain the piece of music.
  * LOCATION    : location of recording, or other location of interest
- * COMMENT     : additional comments of any nature.
  */
 
 
@@ -357,7 +356,6 @@ gboolean Ogg_Tag_Read_File_Tag (gchar *filename, File_Tag *FileTag)
     field_num = 0;
     string1 = NULL; // Cause it may be not updated into the 'while' condition
     while ( ((string2 = vorbis_comment_query(vc,"DESCRIPTION",field_num)) != NULL )   // New specifications
-         || ((string  = vorbis_comment_query(vc,"COMMENT",    field_num)) != NULL )   // Old : Winamp format (for EasyTAG 1.99.11 and older)
          || ((string1 = vorbis_comment_query(vc,"",           field_num)) != NULL ) ) // Old : Xmms format   (for EasyTAG 1.99.11 and older)
     {
         string  = Try_To_Validate_Utf8_String(string);
@@ -564,7 +562,6 @@ gboolean Ogg_Tag_Read_File_Tag (gchar *filename, File_Tag *FileTag)
           && strncasecmp(vc->user_comments[i],"TRACKTOTAL=",      11) != 0
           && strncasecmp(vc->user_comments[i],"GENRE=",            6) != 0
           && strncasecmp(vc->user_comments[i],"DESCRIPTION=",     12) != 0
-          && strncasecmp(vc->user_comments[i],"COMMENT=",          8) != 0
           && strncasecmp(vc->user_comments[i],"=",                 1) != 0
           && strncasecmp(vc->user_comments[i],"COMPOSER=",         9) != 0
           && strncasecmp(vc->user_comments[i],"PERFORMER=",       10) != 0
@@ -751,16 +748,12 @@ gboolean Ogg_Tag_Write_File_Tag (ET_File *ETFile)
     /***********
      * Comment *
      ***********/
-    // We write the comment using the two formats "DESCRIPTION" and "COMMENT" to be compatible with old versions
-    // Format of new specification
+    /* Format of new specification. */
     Ogg_Set_Tag(vc,"DESCRIPTION=",FileTag->comment,VORBIS_SPLIT_FIELD_COMMENT);
-
-    // Format used in winamp plugin
-    Ogg_Set_Tag(vc,"COMMENT=",FileTag->comment,VORBIS_SPLIT_FIELD_COMMENT);
 
     if (OGG_TAG_WRITE_XMMS_COMMENT)
     {
-        // Format used into xmms-1.2.5
+        /* Format used with xmms-1.2.5. */
         Ogg_Set_Tag(vc,"=",FileTag->comment,VORBIS_SPLIT_FIELD_COMMENT);
     }
 
