@@ -17,7 +17,6 @@ General tidying
 * Use g_spawn_async() or g_app_info_launch() to spawn processes
 * Check usage and casting away of const
 * Check C-style casts for errors
-* Remove XMMS Vorbis comment compatibility
 
 After GTK+ 3
 ------------

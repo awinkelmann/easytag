@@ -354,51 +354,19 @@ gboolean Ogg_Tag_Read_File_Tag (gchar *filename, File_Tag *FileTag)
      * Comment *
      ***********/
     field_num = 0;
-    string1 = NULL; // Cause it may be not updated into the 'while' condition
-    while ( ((string2 = vorbis_comment_query(vc,"DESCRIPTION",field_num)) != NULL )   // New specifications
-         || ((string1 = vorbis_comment_query(vc,"",           field_num)) != NULL ) ) // Old : Xmms format   (for EasyTAG 1.99.11 and older)
+    while ((string = vorbis_comment_query (vc, "DESCRIPTION", field_num++)) != NULL)
     {
         string  = Try_To_Validate_Utf8_String(string);
-        string1 = Try_To_Validate_Utf8_String(string1);
-        string2 = Try_To_Validate_Utf8_String(string2);
 
-        if ( string2 && g_utf8_strlen(string2, -1) > 0 ) // Contains comment to new specifications format and we prefer this format (field name defined)
+        if (g_utf8_strlen (string, -1) > 0)
         {
             if (FileTag->comment==NULL)
                 FileTag->comment = g_strdup(string2);
             else
                 FileTag->comment = g_strconcat(FileTag->comment,MULTIFIELD_SEPARATOR,string2,NULL);
-
-            // Frees allocated data
-            if (string && g_utf8_strlen(string, -1) > 0)
-                g_free(string);
-            if (string1 && g_utf8_strlen(string1, -1) > 0)
-                g_free(string1);
-        }else if ( string && g_utf8_strlen(string, -1) > 0 ) // Contains comment to Winamp format and we prefer this format (field name defined)
-        {
-            if (FileTag->comment==NULL)
-                FileTag->comment = g_strdup(string);
-            else
-                FileTag->comment = g_strconcat(FileTag->comment,MULTIFIELD_SEPARATOR,string,NULL);
-
-            // Frees allocated data
-            if (string1 && g_utf8_strlen(string1, -1) > 0)
-                g_free(string1);
-        }else if ( string1 && g_utf8_strlen(string1, -1) > 0 ) // Contains comment to Xmms format only
-        {
-            if (FileTag->comment==NULL)
-                FileTag->comment = g_strdup(string1);
-            else
-                FileTag->comment = g_strconcat(FileTag->comment,MULTIFIELD_SEPARATOR,string1,NULL);
         }
 
-        g_free(string);
-        g_free(string1);
-        g_free(string2);
-
-        string  = NULL;
-        string1 = NULL;
-        field_num++;
+        g_free (string);
     }
 
     /************
@@ -750,13 +718,6 @@ gboolean Ogg_Tag_Write_File_Tag (ET_File *ETFile)
      ***********/
     /* Format of new specification. */
     Ogg_Set_Tag(vc,"DESCRIPTION=",FileTag->comment,VORBIS_SPLIT_FIELD_COMMENT);
-
-    if (OGG_TAG_WRITE_XMMS_COMMENT)
-    {
-        /* Format used with xmms-1.2.5. */
-        Ogg_Set_Tag(vc,"=",FileTag->comment,VORBIS_SPLIT_FIELD_COMMENT);
-    }
-
 
     /************
      * Composer *
