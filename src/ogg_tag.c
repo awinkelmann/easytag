@@ -43,10 +43,10 @@
 #include "setting.h"
 #include "charset.h"
 
-#ifdef WIN32
+#ifdef G_OS_WIN32
 // for mkstemp
-#   include "win32/win32dep.h"
-#endif
+#include "win32/win32dep.h"
+#endif /* G_OS_WIN32 */
 
 
 /***************
@@ -100,7 +100,6 @@
  * PART        : a division within a work; eg, a movement of a symphony. Some tracks contain several parts. Use a single PART tag for each part contained in a track. ie, PART="Oh sole mio"
  * PARTNUMBER  : The part number goes in here. You can use any format you like, such as Roman numerals, regular numbers, or whatever. The numbers should be entered in such a way that an alphabetical sort on this tag will correctly show the proper ordering of all the oggs that contain the contain the piece of music.
  * LOCATION    : location of recording, or other location of interest
- * COMMENT     : additional comments of any nature.
  */
 
 
@@ -355,52 +354,19 @@ gboolean Ogg_Tag_Read_File_Tag (gchar *filename, File_Tag *FileTag)
      * Comment *
      ***********/
     field_num = 0;
-    string1 = NULL; // Cause it may be not updated into the 'while' condition
-    while ( ((string2 = vorbis_comment_query(vc,"DESCRIPTION",field_num)) != NULL )   // New specifications
-         || ((string  = vorbis_comment_query(vc,"COMMENT",    field_num)) != NULL )   // Old : Winamp format (for EasyTAG 1.99.11 and older)
-         || ((string1 = vorbis_comment_query(vc,"",           field_num)) != NULL ) ) // Old : Xmms format   (for EasyTAG 1.99.11 and older)
+    while ((string = vorbis_comment_query (vc, "DESCRIPTION", field_num++)) != NULL)
     {
         string  = Try_To_Validate_Utf8_String(string);
-        string1 = Try_To_Validate_Utf8_String(string1);
-        string2 = Try_To_Validate_Utf8_String(string2);
 
-        if ( string2 && g_utf8_strlen(string2, -1) > 0 ) // Contains comment to new specifications format and we prefer this format (field name defined)
+        if (g_utf8_strlen (string, -1) > 0)
         {
             if (FileTag->comment==NULL)
                 FileTag->comment = g_strdup(string2);
             else
                 FileTag->comment = g_strconcat(FileTag->comment,MULTIFIELD_SEPARATOR,string2,NULL);
-
-            // Frees allocated data
-            if (string && g_utf8_strlen(string, -1) > 0)
-                g_free(string);
-            if (string1 && g_utf8_strlen(string1, -1) > 0)
-                g_free(string1);
-        }else if ( string && g_utf8_strlen(string, -1) > 0 ) // Contains comment to Winamp format and we prefer this format (field name defined)
-        {
-            if (FileTag->comment==NULL)
-                FileTag->comment = g_strdup(string);
-            else
-                FileTag->comment = g_strconcat(FileTag->comment,MULTIFIELD_SEPARATOR,string,NULL);
-
-            // Frees allocated data
-            if (string1 && g_utf8_strlen(string1, -1) > 0)
-                g_free(string1);
-        }else if ( string1 && g_utf8_strlen(string1, -1) > 0 ) // Contains comment to Xmms format only
-        {
-            if (FileTag->comment==NULL)
-                FileTag->comment = g_strdup(string1);
-            else
-                FileTag->comment = g_strconcat(FileTag->comment,MULTIFIELD_SEPARATOR,string1,NULL);
         }
 
-        g_free(string);
-        g_free(string1);
-        g_free(string2);
-
-        string  = NULL;
-        string1 = NULL;
-        field_num++;
+        g_free (string);
     }
 
     /************
@@ -464,7 +430,7 @@ gboolean Ogg_Tag_Read_File_Tag (gchar *filename, File_Tag *FileTag)
      * URL *
      *******/
     field_num = 0;
-    while ( (string = vorbis_comment_query(vc,"LICENSE",field_num++)) != NULL )
+    while ((string = vorbis_comment_query (vc, "CONTACT", field_num++)) != NULL)
     {
         string = Try_To_Validate_Utf8_String(string);
 
@@ -564,12 +530,11 @@ gboolean Ogg_Tag_Read_File_Tag (gchar *filename, File_Tag *FileTag)
           && strncasecmp(vc->user_comments[i],"TRACKTOTAL=",      11) != 0
           && strncasecmp(vc->user_comments[i],"GENRE=",            6) != 0
           && strncasecmp(vc->user_comments[i],"DESCRIPTION=",     12) != 0
-          && strncasecmp(vc->user_comments[i],"COMMENT=",          8) != 0
           && strncasecmp(vc->user_comments[i],"=",                 1) != 0
           && strncasecmp(vc->user_comments[i],"COMPOSER=",         9) != 0
           && strncasecmp(vc->user_comments[i],"PERFORMER=",       10) != 0
           && strncasecmp(vc->user_comments[i],"COPYRIGHT=",       10) != 0
-          && strncasecmp(vc->user_comments[i],"LICENSE=",          8) != 0
+          && strncasecmp(vc->user_comments[i],"CONTACT=",          8) != 0
           && strncasecmp(vc->user_comments[i],"ENCODED-BY=",      11) != 0
           && strncasecmp(vc->user_comments[i],"COVERART=",         9) != 0
           && strncasecmp(vc->user_comments[i],"COVERARTTYPE=",       13) != 0
@@ -751,19 +716,8 @@ gboolean Ogg_Tag_Write_File_Tag (ET_File *ETFile)
     /***********
      * Comment *
      ***********/
-    // We write the comment using the two formats "DESCRIPTION" and "COMMENT" to be compatible with old versions
-    // Format of new specification
+    /* Format of new specification. */
     Ogg_Set_Tag(vc,"DESCRIPTION=",FileTag->comment,VORBIS_SPLIT_FIELD_COMMENT);
-
-    // Format used in winamp plugin
-    Ogg_Set_Tag(vc,"COMMENT=",FileTag->comment,VORBIS_SPLIT_FIELD_COMMENT);
-
-    if (OGG_TAG_WRITE_XMMS_COMMENT)
-    {
-        // Format used into xmms-1.2.5
-        Ogg_Set_Tag(vc,"=",FileTag->comment,VORBIS_SPLIT_FIELD_COMMENT);
-    }
-
 
     /************
      * Composer *
@@ -783,7 +737,7 @@ gboolean Ogg_Tag_Write_File_Tag (ET_File *ETFile)
     /*******
      * URL *
      *******/
-    Ogg_Set_Tag(vc,"LICENSE=",FileTag->url,FALSE);
+    Ogg_Set_Tag (vc, "CONTACT=", FileTag->url, FALSE);
 
     /**************
      * Encoded by *
@@ -820,7 +774,7 @@ gboolean Ogg_Tag_Write_File_Tag (ET_File *ETFile)
                 g_free(string);
             }
 
-            base64_encode(pic->data, pic->size, &data_encoded);
+            base64_encode (pic->data, pic->size, &data_encoded);
             string = g_strdup_printf("COVERART=%s",data_encoded);
             vorbis_comment_add(vc,string);
             g_free(data_encoded);

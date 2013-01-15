@@ -42,16 +42,6 @@
 #include "misc.h"
 
 
-/***************
- * Declaration *
- ***************/
-
-
-/**************
- * Prototypes *
- **************/
-
-
 /*************
  * Functions *
  *************/
@@ -90,7 +80,6 @@ gboolean Ogg_Header_Read_File_Info (gchar *filename, ET_File_Info *ETFileInfo)
             channels        = vi->channels;        // Number of channels in bitstream.
             rate            = vi->rate;            // (Hz) Sampling rate of the bitstream.
             bitrate_nominal = vi->bitrate_nominal; // (b/s) Specifies the average bitrate for a VBR bitstream.
-            //bitrate_nominal = ov_bitrate(&vf,-1);  // (b/s) Specifies the average bitrate for the specified logical bitstream.
         }else
         {
             Log_Print(LOG_ERROR,_("Ogg Vorbis: The specified bitstream does not exist or the "

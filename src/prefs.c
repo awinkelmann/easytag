@@ -42,11 +42,6 @@
 #include "cddb.h"
 #include "charset.h"
 
-//#ifdef WIN32
-//#   include "win32/win32dep.h"
-//#endif
-
-
 /**************
  * Prototypes *
  **************/
@@ -219,9 +214,9 @@ void Open_OptionsWindow (void)
 
     /* Browse hidden directories */
     BrowseHiddendir = gtk_check_button_new_with_label(_("Search hidden directories"));
-#ifndef WIN32 /* Always true and not user modifiable on win32 */
+#ifndef G_OS_WIN32 /* Always true and not user modifiable on win32 */
     gtk_box_pack_start(GTK_BOX(vbox),BrowseHiddendir,FALSE,FALSE,0);
-#endif
+#endif /* !G_OS_WIN32 */
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(BrowseHiddendir),BROWSE_HIDDEN_DIR);
     gtk_widget_set_tooltip_text(BrowseHiddendir,_("Search hidden directories for files "
         "(directories starting by a '.')."));
@@ -319,9 +314,12 @@ void Open_OptionsWindow (void)
         "when loading a directory."));
 
     SortingFileCaseSensitive = gtk_check_button_new_with_label(_("Case sensitive"));
-#ifndef WIN32 /* Always true and not user modifiable on win32, as strncasecmp() doesn't work correctly with g_utf8_collate_key() */
+#ifndef G_OS_WIN32
+    /* Always true and not user modifiable on win32, as strncasecmp() does not
+     * work correctly with g_utf8_collate_key().
+     */
     gtk_box_pack_start(GTK_BOX(hbox),SortingFileCaseSensitive,FALSE,FALSE,0);
-#endif
+#endif /* !G_OS_WIN32 */
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(SortingFileCaseSensitive),
         SORTING_FILE_CASE_SENSITIVE);
     gtk_widget_set_tooltip_text(SortingFileCaseSensitive,_("If activated, the "
@@ -610,14 +608,6 @@ void Open_OptionsWindow (void)
     gtk_box_pack_start(GTK_BOX(hbox),Label,FALSE,FALSE,4);
     g_signal_connect_swapped(G_OBJECT(NumberTrackFormatedSpinButton),"changed",G_CALLBACK(Number_Track_Formatted_Spin_Button_Changed),G_OBJECT(Label));
     g_signal_emit_by_name(G_OBJECT(NumberTrackFormatedSpinButton),"changed",NULL);
-
-    OggTagWriteXmmsComment = gtk_check_button_new_with_label(_("Ogg Vorbis Files: write also the comment in the XMMS format"));
-    gtk_box_pack_start(GTK_BOX(vbox),OggTagWriteXmmsComment,FALSE,FALSE,0);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(OggTagWriteXmmsComment),OGG_TAG_WRITE_XMMS_COMMENT);
-    gtk_widget_set_tooltip_text(OggTagWriteXmmsComment,_("XMMS doesn't make use of the right way to "
-        "identify a comment in Ogg Vorbis files as other apps do. In fact, this field is usually labeled "
-        "with 'comment=', whereas XMMS uses only `='. Please, uncheck this option if you don't want "
-        "other apps to complain about an unknown field. Comments won't be shown in XMMS, though."));
 
     // Separator line
     Separator = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
@@ -1669,13 +1659,13 @@ OptionsWindow_Save_Button (void)
 {
     if (!Check_Config()) return;
 
-#ifndef WIN32
+#ifndef G_OS_WIN32
     /* FIXME : make gtk crash on win32 */
     Add_String_To_Combo_List(DefaultPathModel,      gtk_entry_get_text(GTK_ENTRY(gtk_bin_get_child(GTK_BIN(DefaultPathToMp3)))));
     Add_String_To_Combo_List(FilePlayerModel,       gtk_entry_get_text(GTK_ENTRY(gtk_bin_get_child(GTK_BIN(FilePlayerCombo)))));
     Add_String_To_Combo_List(DefaultCommentModel,   gtk_entry_get_text(GTK_ENTRY(gtk_bin_get_child(GTK_BIN(DefaultComment)))));
     Add_String_To_Combo_List(CddbLocalPathModel,    gtk_entry_get_text(GTK_ENTRY(gtk_bin_get_child(GTK_BIN(CddbLocalPath)))));
-#endif
+#endif /* !G_OS_WIN32 */
 
     Save_Changes_Of_Preferences_Window();
 
@@ -1773,10 +1763,12 @@ Check_DefaultPathToMp3 (void)
 
     path_real = filename_from_display(path_utf8);
 
-#ifdef WIN32
-    /* On win32 : stat("c:\path\to\dir") succeed, while stat("c:\path\to\dir\") fails */
+#ifdef G_OS_WIN32
+    /* On win32 : stat("c:\path\to\dir") succeed, while stat("c:\path\to\dir\")
+     * fails.
+     */
     ET_Win32_Path_Remove_Trailing_Backslash(path_real);
-#endif
+#endif /* G_OS_WIN32 */
 
     if ( stat(path_real,&stbuf)==0 && S_ISDIR(stbuf.st_mode) )
     {
@@ -1888,10 +1880,10 @@ Check_FilePlayerCombo (void)
     gchar *program_path = NULL;
     gchar *program_path_validated = NULL;
 
-#ifdef WIN32
+#ifdef G_OS_WIN32
     return TRUE; /* FIXME see Check_If_Executable_Exists */
     /* Note : Check_If_Executable_Exists crashes when player is 'winamp.exe' with g_find_program_in_path */
-#endif
+#endif /* G_OS_WIN32 */
 
     // The program typed
     program_path = g_strdup(gtk_entry_get_text(GTK_ENTRY(gtk_bin_get_child(GTK_BIN(FilePlayerCombo)))));

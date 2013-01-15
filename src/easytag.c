@@ -31,10 +31,10 @@
 #include <errno.h>
 #include <signal.h>
 #ifdef ENABLE_MP3
-#   include <id3tag.h>
+#include <id3tag.h>
 #endif
 #if defined ENABLE_MP3 && defined ENABLE_ID3LIB
-#   include <id3.h>
+#include <id3.h>
 #endif
 #include <sys/types.h>
 #include <utime.h>
@@ -56,33 +56,32 @@
 #include "picture.h"
 #include "charset.h"
 
-#ifdef WIN32
+#ifdef G_OS_WIN32
 #include "win32/win32dep.h"
-#else
+#else /* !G_OS_WIN32 */
 #include <sys/wait.h>
-#endif
+#endif /* !G_OS_WIN32 */
 
 
 /****************
  * Declarations *
  ****************/
-guint idle_handler_id;
-guint progressbar_index;  /* An integer to set the value of progress bar into the recurse fonction */
+static guint idle_handler_id;
 
-GtkWidget *QuitRecursionWindow = NULL;
+static GtkWidget *QuitRecursionWindow = NULL;
 
 /* Used to force to hide the msgbox when saving tag */
-gboolean SF_HideMsgbox_Write_Tag;
+static gboolean SF_HideMsgbox_Write_Tag;
 /* To remember which button was pressed when saving tag */
-gint     SF_ButtonPressed_Write_Tag;
+static gint SF_ButtonPressed_Write_Tag;
 /* Used to force to hide the msgbox when renaming file */
-gboolean SF_HideMsgbox_Rename_File;
+static gboolean SF_HideMsgbox_Rename_File;
 /* To remember which button was pressed when renaming file */
-gint     SF_ButtonPressed_Rename_File;
+static gint SF_ButtonPressed_Rename_File;
 /* Used to force to hide the msgbox when deleting file */
-gboolean SF_HideMsgbox_Delete_File;
+static gboolean SF_HideMsgbox_Delete_File;
 /* To remember which button was pressed when deleting file */
-gint     SF_ButtonPressed_Delete_File;
+static gint SF_ButtonPressed_Delete_File;
 
 #ifdef ENABLE_FLAC
     #include <FLAC/metadata.h>
@@ -111,9 +110,6 @@ static GtkWidget *Create_Tag_Area     (void);
 static void Menu_Mini_Button_Clicked (GtkEntry *entry);
 static void Mini_Button_Clicked (GObject *object);
 static void Disable_Command_Buttons (void);
-void Clear_Tag_Entry_Fields  (void);
-void Clear_File_Entry_Field  (void);
-void Clear_Header_Fields     (void);
 
 static gboolean Make_Dir (const gchar *dirname_old, const gchar *dirname_new);
 static gboolean Remove_Dir (const gchar *dirname_old,
@@ -123,7 +119,6 @@ static gboolean Rename_File (ET_File *ETFile, gboolean hide_msgbox);
 static gint Save_File (ET_File *ETFile, gboolean multiple_files,
                        gboolean force_saving_files);
 static gint Delete_File (ET_File *ETFile, gboolean multiple_files);
-gint Save_All_Files_With_Answer        (gboolean force_saving_files);
 static gint Save_Selected_Files_With_Answer (gboolean force_saving_files);
 static gint Save_List_Of_Files (GList *etfilelist,
                                 gboolean force_saving_files);
@@ -145,7 +140,7 @@ static void Quit_Recursion_Window_Key_Press (GtkWidget *window,
 static void File_Area_Set_Sensitive (gboolean activate);
 static void Tag_Area_Set_Sensitive  (gboolean activate);
 
-#ifndef WIN32
+#ifndef G_OS_WIN32
 static void
 setup_sigbus_fpe_segv (void)
 {
@@ -173,16 +168,16 @@ setup_sigchld (void)
     sa.sa_flags = SA_RESTART;
     sigaction (SIGCHLD, &sa, NULL);
 }
-#endif /* !WIN32 */
+#endif /* !G_OS_WIN32 */
 
 /********
  * Main *
  ********/
-#ifdef WIN32
+#ifdef G_OS_WIN32
 int easytag_main (struct HINSTANCE__ *hInstance, int argc, char *argv[]) /* entry point of DLL */
-#else
+#else /* !G_OS_WIN32 */
 int main (int argc, char *argv[])
-#endif
+#endif /* !G_OS_WIN32 */
 {
     GtkWidget *MainVBox;
     GtkWidget *HBox, *VBox;
@@ -190,15 +185,15 @@ int main (int argc, char *argv[])
     //GError *error = NULL;
 
 
-#ifdef WIN32
+#ifdef G_OS_WIN32
     weasytag_init();
     //ET_Win32_Init(hInstance);
-#else
+#else /* !G_OS_WIN32 */
     /* Signal handling to display a message(SIGSEGV, ...) */
     setup_sigbus_fpe_segv ();
     // Must handle this signal to avoid zombie of applications executed (ex: xmms)
     setup_sigchld ();
-#endif
+#endif /* !G_OS_WIN32 */
 
 #ifdef ENABLE_NLS
     bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
@@ -225,23 +220,22 @@ int main (int argc, char *argv[])
                                                                ID3LIB_PATCH_VERSION);
 #endif
 
-#ifdef WIN32
+#ifdef G_OS_WIN32
     if (g_getenv("EASYTAGLANG"))
         Log_Print(LOG_OK,_("Variable EASYTAGLANG defined. Setting locale: '%s'"),g_getenv("EASYTAGLANG"));
     else
         Log_Print(LOG_OK,_("Setting locale: '%s'"),g_getenv("LANG"));
-#endif
+#endif /* G_OS_WIN32 */
 
     if (get_locale())
         Log_Print(LOG_OK,_("Currently using locale '%s' (and eventually '%s')…"),
                 get_locale(),get_encoding_from_locale(get_locale()));
 
 
-    /* Create all config files */
-    if ( FALSE == Setting_Create_Files())
+    /* Create all config files. */
+    if (!Setting_Create_Files())
     {
-        Log_Print(LOG_WARNING,_("Unable to create Directory for Easytag"));
-        /* Shall we leave/end ET here? */
+        Log_Print (LOG_WARNING, _("Unable to create setting directories"));
     }
 
     /* Load Config */
@@ -279,9 +273,10 @@ int main (int argc, char *argv[])
                 g_free(curdir);
             }
 
-#ifdef WIN32
+#ifdef G_OS_WIN32
             ET_Win32_Path_Replace_Slashes(path2check);
-#endif
+#endif /* G_OS_WIN32 */
+
             // Check if contains hidden directories
             pathsplit = g_strsplit(path2check,G_DIR_SEPARATOR_S,0);
             g_free(path2check);
@@ -306,12 +301,13 @@ int main (int argc, char *argv[])
                         path2check_tmp = g_strconcat(path2check,G_DIR_SEPARATOR_S,pathsplit[ps_index],NULL);
                     }else
                     {
-#ifdef WIN32
+#ifdef G_OS_WIN32
                         // Build a path starting with the drive letter
                         path2check_tmp = g_strdup(pathsplit[ps_index]);
-#else
+#else /* !G_OS_WIN32 */
                         path2check_tmp = g_strconcat(G_DIR_SEPARATOR_S,pathsplit[ps_index],NULL);
-#endif
+#endif /* !G_OS_WIN32 */
+
                     }
 
                     path2check = g_strdup(path2check_tmp);
@@ -341,7 +337,7 @@ int main (int argc, char *argv[])
 
     /* Initialization */
     ET_Core_Create();
-    Main_Stop_Button_Pressed = 0;
+    Main_Stop_Button_Pressed = FALSE;
     Init_Custom_Icons();
     Init_Mouse_Cursor();
     Init_OptionsWindow();
@@ -2338,10 +2334,10 @@ Save_List_Of_Files (GList *etfilelist, gboolean force_saving_files)
     File_Area_Set_Sensitive(FALSE);
 
     /* Show msgbox (if needed) to ask confirmation ('SF' for Save File) */
-    SF_HideMsgbox_Write_Tag = 0;
-    SF_HideMsgbox_Rename_File = 0;
+    SF_HideMsgbox_Write_Tag = FALSE;
+    SF_HideMsgbox_Rename_File = FALSE;
 
-    Main_Stop_Button_Pressed = 0;
+    Main_Stop_Button_Pressed = FALSE;
     uiaction = gtk_ui_manager_get_action(UIManager, "/ToolBar/Stop"); // Activate the stop button
     g_object_set(uiaction, "sensitive", FALSE, NULL);
 
@@ -2373,7 +2369,8 @@ Save_List_Of_Files (GList *etfilelist, gboolean force_saving_files)
                 break;
             case GTK_RESPONSE_NO:
             case GTK_RESPONSE_NONE:
-                Main_Stop_Button_Pressed = 1; // To don't enter to following loop
+                /* Skip the following loop. */
+                Main_Stop_Button_Pressed = TRUE;
                 break;
         }
     }
@@ -2423,7 +2420,7 @@ Save_List_Of_Files (GList *etfilelist, gboolean force_saving_files)
         }
 
         etfilelist_tmp = etfilelist_tmp->next;
-        if (Main_Stop_Button_Pressed == 1 )
+        if (Main_Stop_Button_Pressed)
             break;
 
     }
@@ -2436,7 +2433,7 @@ Save_List_Of_Files (GList *etfilelist, gboolean force_saving_files)
     else
         msg = g_strdup(_("All files have been saved…"));
 
-    Main_Stop_Button_Pressed = 0;
+    Main_Stop_Button_Pressed = FALSE;
     uiaction = gtk_ui_manager_get_action(UIManager, "/ToolBar/Stop");
     g_object_set(uiaction, "sensitive", FALSE, NULL);
 
@@ -2711,6 +2708,7 @@ Save_File (ET_File *ETFile, gboolean multiple_files,
                 message_area = gtk_message_dialog_get_message_area(GTK_MESSAGE_DIALOG(msgdialog));
                 msgdialog_check_button = gtk_check_button_new_with_label(_("Repeat action for the remaining files"));
                 gtk_container_add(GTK_CONTAINER(message_area),msgdialog_check_button);
+                gtk_widget_show (msgdialog_check_button);
                 gtk_dialog_add_buttons(GTK_DIALOG(msgdialog),GTK_STOCK_DISCARD,GTK_RESPONSE_NO,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,GTK_STOCK_SAVE,GTK_RESPONSE_YES,NULL);
                 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(msgdialog_check_button), TRUE); // Checked by default
             }else
@@ -2822,6 +2820,7 @@ Save_File (ET_File *ETFile, gboolean multiple_files,
                 message_area = gtk_message_dialog_get_message_area(GTK_MESSAGE_DIALOG(msgdialog));
                 msgdialog_check_button = gtk_check_button_new_with_label(_("Repeat action for the remaining files"));
                 gtk_container_add(GTK_CONTAINER(message_area),msgdialog_check_button);
+                gtk_widget_show (msgdialog_check_button);
                 gtk_dialog_add_buttons(GTK_DIALOG(msgdialog),GTK_STOCK_DISCARD,GTK_RESPONSE_NO,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,GTK_STOCK_SAVE,GTK_RESPONSE_YES,NULL);
                 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(msgdialog_check_button), TRUE); // Checked by default
             }else
@@ -2953,9 +2952,9 @@ Make_Dir (const gchar *dirname_old, const gchar *dirname_new)
 {
     gchar *parent, *temp;
     struct stat dirstat;
-#ifdef WIN32
+#ifdef G_OS_WIN32
     gboolean first = TRUE;
-#endif
+#endif /* G_OS_WIN32 */
 
     // Use same permissions as the old directory
     stat(dirname_old,&dirstat);
@@ -2966,13 +2965,13 @@ Make_Dir (const gchar *dirname_old, const gchar *dirname_new)
         if (*temp!=G_DIR_SEPARATOR)
             continue;
 
-#ifdef WIN32
+#ifdef G_OS_WIN32
         if (first)
         {
             first = FALSE;
             continue;
         }
-#endif
+#endif /* G_OS_WIN32 */
 
         *temp=0; // To truncate temporarly dirname_new
 
@@ -3368,7 +3367,6 @@ Rename_File (ET_File *ETFile, gboolean hide_msgbox)
         }
     }else
     {
-        gchar *msg;
         GtkWidget *msgdialog;
 
         /* Renaming file has failed, but we try to set the initial name */
@@ -3390,10 +3388,9 @@ Rename_File (ET_File *ETFile, gboolean hide_msgbox)
             gtk_widget_destroy(msgdialog);
         }
 
-        msg = g_strdup_printf(_("Cannot rename file '%s'\n to \n'%s': (%s)"),
-                              cur_basename_utf8,new_basename_utf8,g_strerror(errno));
-        Log_Print(LOG_ERROR,"%s", msg);
-        g_free(msg);
+        Log_Print (LOG_ERROR, _("Cannot rename file '%s' to '%s': %s"),
+                              cur_basename_utf8, new_basename_utf8,
+                              g_strerror (errno));
 
         Statusbar_Message(_("File(s) not renamed…"),TRUE);
 
@@ -3417,15 +3414,17 @@ Delete_File (ET_File *ETFile, gboolean multiple_files)
     GtkWidget *msgdialog;
     GtkWidget *msgdialog_check_button = NULL;
     gchar *cur_filename;
+    gchar *cur_filename_utf8;
     gchar *basename_utf8;
     gint response;
     gint stop_loop;
 
     g_return_val_if_fail (ETFile != NULL, FALSE);
 
-    // Filename of the file to delete
+    /* Filename of the file to delete. */
     cur_filename      = ((File_Name *)(ETFile->FileNameCur)->data)->value;
-    basename_utf8 = g_path_get_basename(cur_filename);
+    cur_filename_utf8 = ((File_Name *)(ETFile->FileNameCur)->data)->value_utf8;
+    basename_utf8 = g_path_get_basename (cur_filename_utf8);
 
     /*
      * Remove the file
@@ -3669,7 +3668,7 @@ gboolean Read_Directory (gchar *path_real)
         while (gtk_events_pending())
             gtk_main_iteration();
 
-        if ( !FileList->next || (Main_Stop_Button_Pressed==1) ) break;
+        if (!FileList->next || Main_Stop_Button_Pressed) break;
         FileList = FileList->next;
     }
     if (FileList) g_list_free(FileList);
@@ -3677,7 +3676,7 @@ gboolean Read_Directory (gchar *path_real)
 
     /* Close window to quit recursion */
     Destroy_Quit_Recursion_Function_Window();
-    Main_Stop_Button_Pressed = 0;
+    Main_Stop_Button_Pressed = FALSE;
     uiaction = gtk_ui_manager_get_action(UIManager, "/ToolBar/Stop");
     g_object_set(uiaction, "sensitive", FALSE, NULL);
 
@@ -3762,7 +3761,7 @@ Read_Directory_Recursively (GList *file_list, const gchar *path_real,
 
     while ((dirent = readdir(dir)) != NULL)
     {
-        if (Main_Stop_Button_Pressed == 1)
+        if (Main_Stop_Button_Pressed)
         {
             closedir(dir);
             return file_list;
@@ -3887,7 +3886,7 @@ Quit_Recursion_Window_Key_Press (GtkWidget *window, GdkEvent *event)
 void Action_Main_Stop_Button_Pressed (void)
 {
     GtkAction *uiaction;
-    Main_Stop_Button_Pressed = 1;
+    Main_Stop_Button_Pressed = TRUE;
     uiaction = gtk_ui_manager_get_action(UIManager, "/ToolBar/Stop");
     g_object_set(uiaction, "sensitive", FALSE, NULL);
 }
@@ -5004,11 +5003,11 @@ static void
 Display_Usage (void)
 {
     // Fix from Steve Ralston for gcc-3.2.2
-#ifdef WIN32
-    #define xPREFIX "c:"
-#else
-    #define xPREFIX ""
-#endif
+#ifdef G_OS_WIN32
+#define xPREFIX "c:"
+#else /* !G_OS_WIN32 */
+#define xPREFIX ""
+#endif /* !G_OS_WIN32 */
 
     g_print(_("\nUsage: easytag [option] "
               "\n   or: easytag [directory]\n"
@@ -5024,7 +5023,7 @@ Display_Usage (void)
               "path_to/files     Use a relative path.\n"
               "\n"),xPREFIX);
 
-    #undef xPREFIX
+#undef xPREFIX
 
     exit(0);
 }
@@ -5041,9 +5040,9 @@ EasyTAG_Exit (void)
     Charset_Insert_Locales_Destroy();
     Log_Print(LOG_OK,_("EasyTAG: Normal exit."));
     gtk_main_quit();
-#ifdef WIN32
+#ifdef G_OS_WIN32
     weasytag_cleanup();
-#endif
+#endif /* G_OS_WIN32 */
     exit(0);
 }
 

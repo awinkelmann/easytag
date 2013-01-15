@@ -59,19 +59,23 @@
 /**************
  * Prototypes *
  **************/
-gchar *Id3tag_Get_Error_Message (ID3_Err error);
-void   Id3tag_Prepare_ID3v1     (ID3Tag *id3_tag);
-gchar *Id3tag_Rules_For_ISO_Fields (const gchar *string, const gchar *from_codeset, const gchar *to_codeset);
-gchar *Id3tag_Get_Field         (const ID3Frame *id3_frame, ID3_FieldID id3_fieldid);
-ID3_TextEnc Id3tag_Set_Field    (const ID3Frame *id3_frame, ID3_FieldID id3_fieldid, gchar *string);
+static gchar *Id3tag_Get_Error_Message (ID3_Err error);
+static void Id3tag_Prepare_ID3v1 (ID3Tag *id3_tag);
+static gchar *Id3tag_Rules_For_ISO_Fields (const gchar *string,
+                                           const gchar *from_codeset,
+                                           const gchar *to_codeset);
+static gchar *Id3tag_Get_Field (const ID3Frame *id3_frame,
+                                ID3_FieldID id3_fieldid);
+static ID3_TextEnc Id3tag_Set_Field (const ID3Frame *id3_frame,
+                                     ID3_FieldID id3_fieldid, gchar *string);
 
 ID3_C_EXPORT size_t ID3Tag_Link_1         (ID3Tag *id3tag, const char *filename);
 ID3_C_EXPORT size_t ID3Field_GetASCII_1   (const ID3Field *field, char *buffer,      size_t maxChars, size_t itemNum);
 ID3_C_EXPORT size_t ID3Field_GetUNICODE_1 (const ID3Field *field, unicode_t *buffer, size_t maxChars, size_t itemNum);
 
-gboolean Id3tag_Check_If_File_Is_Corrupted (gchar *filename);
+static gboolean Id3tag_Check_If_File_Is_Corrupted (const gchar *filename);
 
-gboolean Id3tag_Check_If_Id3lib_Is_Bugged (void);
+static gboolean Id3tag_Check_If_Id3lib_Is_Bugged (void);
 
 static gboolean Id3tag_Write_File_v23Tag (ET_File *ETFile);
 
@@ -1188,7 +1192,7 @@ gchar *Id3tag_Rules_For_ISO_Fields (const gchar *string, const gchar *from_codes
  * Some files which contains only zeroes create an infinite loop in id3lib...
  * To generate a file with zeroes : dd if=/dev/zero bs=1M count=6 of=test-corrupted-mp3-zero-contend.mp3
  */
-gboolean Id3tag_Check_If_File_Is_Corrupted (gchar *filename)
+gboolean Id3tag_Check_If_File_Is_Corrupted (const gchar *filename)
 {
     FILE *file;
     unsigned char tmp[256];
@@ -1321,8 +1325,8 @@ gboolean Id3tag_Check_If_Id3lib_Is_Bugged (void)
     ID3Tag_AttachFrame(id3_tag,id3_frame);
     // Use a Chinese character instead of the latin-1 character as in Id3tag_Set_Field()
     // we try to convert the string to ISO-8859-1 even in the Unicode mode.
-    //Id3tag_Set_Field(id3_frame, ID3FN_TEXT, "é"); // This latin-1 character is written in Unicode as 'E9 FF' instead of 'E9 00' if bugged
-    Id3tag_Set_Field(id3_frame, ID3FN_TEXT, "�°"); // This Chinese character is written in Unicode as 'FF FE B0 FF' instead of 'FF FE B0 30' if bugged
+    //Id3tag_Set_Field(id3_frame, ID3FN_TEXT, "\303\251"); // This latin-1 character is written in Unicode as 'E9 FF' instead of 'E9 00' if bugged
+    Id3tag_Set_Field(id3_frame, ID3FN_TEXT, "\343\302\260"); // This Chinese character is written in Unicode as 'FF FE B0 FF' instead of 'FF FE B0 30' if bugged
 
     // Update the tag
     ID3Tag_UpdateByTagType(id3_tag,ID3TT_ID3V2);
@@ -1345,8 +1349,8 @@ gboolean Id3tag_Check_If_Id3lib_Is_Bugged (void)
     g_object_unref (file);
 
     // Same string found? if yes => not bugged
-    //if ( result && strcmp(result,"é")!=0 )
-    if ( result && strcmp(result,"�°")!=0 )
+    //if ( result && strcmp(result,"\303\251")!=0 )
+    if ( result && strcmp(result,"\343\302\260")!=0 )
     {
         return TRUE;
     }

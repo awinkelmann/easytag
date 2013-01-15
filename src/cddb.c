@@ -28,16 +28,16 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/types.h>
-#ifdef WIN32
-#   include "win32/win32dep.h"
-#else
-#   include <sys/socket.h>
-// Patch OpenBSD from Jim Geovedi
-#   include <netinet/in.h>
-#   include <arpa/inet.h>
-// End patch
-#   include <netdb.h>
-#endif
+#ifdef G_OS_WIN32
+#include "win32/win32dep.h"
+#else /* !G_OS_WIN32 */
+#include <sys/socket.h>
+/* Patch OpenBSD from Jim Geovedi. */
+#include <netinet/in.h>
+#include <arpa/inet.h>
+/* End patch */
+#include <netdb.h>
+#endif /* !G_OS_WIN32 */
 #include <errno.h>
 
 #include "gtk2_compat.h"
@@ -108,35 +108,35 @@ static const gchar CDDB_RESULT_FILE[] = "cddb_result_file.tmp";
 /****************
  * Declarations *
  ****************/
-GtkWidget *CddbNoteBook;
-GList     *CddbAlbumList = NULL;
+static GtkWidget *CddbNoteBook;
+static GList *CddbAlbumList = NULL;
 
-GtkWidget    *CddbSearchStringCombo = NULL;
-GtkListStore *CddbSearchStringModel = NULL;
+static GtkWidget *CddbSearchStringCombo = NULL;
+static GtkListStore *CddbSearchStringModel = NULL;
 
-GtkWidget    *CddbSearchStringInResultCombo;
-GtkListStore *CddbSearchStringInResultModel = NULL;
+static GtkWidget *CddbSearchStringInResultCombo;
+static GtkListStore *CddbSearchStringInResultModel = NULL;
 
-GtkWidget    *CddbAlbumListView = NULL;
-GtkListStore *CddbAlbumListModel = NULL;
-GtkWidget    *CddbTrackListView = NULL;
-GtkListStore *CddbTrackListModel = NULL;
-GtkWidget *CddbApplyButton = NULL;
-GtkWidget *CddbSearchButton = NULL;
-GtkWidget *CddbSearchAutoButton = NULL;
-GtkWidget *CddbStatusBar;
-guint      CddbStatusBarContext;
+static GtkWidget *CddbAlbumListView = NULL;
+static GtkListStore *CddbAlbumListModel = NULL;
+static GtkWidget *CddbTrackListView = NULL;
+static GtkListStore *CddbTrackListModel = NULL;
+static GtkWidget *CddbApplyButton = NULL;
+static GtkWidget *CddbSearchButton = NULL;
+static GtkWidget *CddbSearchAutoButton = NULL;
+static GtkWidget *CddbStatusBar;
+static guint CddbStatusBarContext;
 
-GtkWidget *CddbStopSearchButton;
-GtkWidget *CddbStopSearchAutoButton;
-GtkWidget *CddbSearchStringInResultNextButton;
-GtkWidget *CddbSearchStringInResultPrevButton;
-GtkWidget *CddbDisplayRedLinesButton;
-GtkWidget *CddbSelectAllInResultButton;
-GtkWidget *CddbUnselectAllInResultButton;
-GtkWidget *CddbInvertSelectionInResultButton;
+static GtkWidget *CddbStopSearchButton;
+static GtkWidget *CddbStopSearchAutoButton;
+static GtkWidget *CddbSearchStringInResultNextButton;
+static GtkWidget *CddbSearchStringInResultPrevButton;
+static GtkWidget *CddbDisplayRedLinesButton;
+static GtkWidget *CddbSelectAllInResultButton;
+static GtkWidget *CddbUnselectAllInResultButton;
+static GtkWidget *CddbInvertSelectionInResultButton;
 
-gboolean   CddbStopSearch = FALSE;
+static gboolean CddbStopSearch = FALSE;
 
 
 /**************
@@ -1183,8 +1183,6 @@ Cddb_Search_String_In_Result (GtkWidget *entry, GtkButton *button)
     gchar *text;
     gchar *temp;
     gint   i;
-    gint  *indices = NULL;
-    gint  toloop;
     gint  rowcount;
     GtkTreeSelection* treeSelection;
     GtkTreeIter iter;
@@ -1254,20 +1252,6 @@ Cddb_Search_String_In_Result (GtkWidget *entry, GtkButton *button)
                 g_free(temp);
                 g_free(text);
             } while(gtk_tree_model_iter_next(GTK_TREE_MODEL(CddbAlbumListModel), &iter));
-        }
-
-        /* If no results have been found, start the search again from the beginning */
-        /* If we have had an item selected, we need to stop at that one to avoid re-searching the same entries */
-        if(itemselected == TRUE)
-        {
-            rowpath = gtk_tree_model_get_path(GTK_TREE_MODEL(CddbAlbumListModel), &itercopy);
-            if (rowpath)
-                indices = gtk_tree_path_get_indices(rowpath);
-            gtk_tree_path_free(rowpath);
-            toloop = indices[0];
-        } else
-        {
-            toloop = rowcount;
         }
 
         for (i = 0; i < rowcount; i++)
@@ -1673,9 +1657,9 @@ Cddb_Open_Connection (const gchar *host, gint port)
 static void
 Cddb_Close_Connection (gint socket_id)
 {
-#ifndef WIN32
+#ifndef G_OS_WIN32
     shutdown(socket_id,SHUT_RDWR);
-#endif
+#endif /* !G_OS_WIN32 */
     close(socket_id);
 
     if (!CddbWindow)
@@ -4232,11 +4216,10 @@ Cddb_Format_Proxy_Authentification (void)
 
         gchar *tempstr;
         gchar *str_encoded;
-        gint size;
 
         tempstr = g_strconcat(CDDB_PROXY_USER_NAME, ":", CDDB_PROXY_USER_PASSWORD, NULL);
         //str_encoded = base64_encode(tempstr);
-        size = base64_encode(tempstr, strlen(tempstr), &str_encoded);
+        base64_encode (tempstr, strlen(tempstr), &str_encoded);
 
         ret = g_strdup_printf("Proxy-authorization: Basic %s\r\n", str_encoded);
         g_free (str_encoded);

@@ -35,9 +35,9 @@
 #include "setting.h"
 #include "log.h"
 
-#ifdef WIN32
-    #include "win32/win32dep.h"
-#endif
+#ifdef G_OS_WIN32
+#include "win32/win32dep.h"
+#endif /* G_OS_WIN32 */
 
 
 /****************
@@ -45,7 +45,7 @@
  ****************/
 
 #define CHARSET_TRANS_ARRAY_LEN ( sizeof(charset_trans_array) / sizeof((charset_trans_array)[0]) )
-const CharsetInfo charset_trans_array[] = {
+static const CharsetInfo charset_trans_array[] = {
     {N_("Arabic (IBM-864)"),                  "IBM864"        },
     {N_("Arabic (ISO-8859-6)"),               "ISO-8859-6"    },
     {N_("Arabic (Windows-1256)"),             "windows-1256"  },
@@ -185,11 +185,11 @@ Charset_Insert_Locales_Init (void)
 
     /* "C" is plain ascii */
     insert_locales (encodings, "ASCII", "C", NULL);
-#if WIN32
+#if G_OS_WIN32
     insert_locales (encodings, "windows-1256", "ar", NULL); // 2006.12.31 - For testing with Arabic
-#else
+#else /* !G_OS_WIN32 */
     insert_locales (encodings, "ISO-8859-6", "ar", NULL);
-#endif
+#endif /* !G_OS_WIN32 */
     insert_locales (encodings, "ARMSCII-8", "by", NULL);
     insert_locales (encodings, "BIG5", "zh_TW", NULL);
     insert_locales (encodings, "CP1251", "be", "bg", NULL);
@@ -203,31 +203,31 @@ Charset_Insert_Locales_Init (void)
     /*insert_locales (encodings, "GEORGIAN-ACADEMY", NULL);*/
     insert_locales (encodings, "GEORGIAN-PS", "ka", NULL);
     insert_locales (encodings, "ISO-8859-1", "br", "ca", "da", "de", "en", "es", "eu", "fi", "fr", "gl", "it", "nl", "wa", "nb", "nn", "pt", "pt", "sv", NULL);
-#if WIN32
+#if G_OS_WIN32
     insert_locales (encodings, "windows-1250", "cs", "hr", "hu", "pl", "ro", "sk", "sl", "sq", "sr", NULL);
-#else
+#else /* !G_OS_WIN32 */
     insert_locales (encodings, "ISO-8859-2", "cs", "hr", "hu", "pl", "ro", "sk", "sl", "sq", "sr", NULL);
-#endif
+#endif /* !G_OS_WIN32 */
     insert_locales (encodings, "ISO-8859-3", "eo", NULL);
     insert_locales (encodings, "ISO-8859-5", "mk", "sp", NULL);
-#if WIN32
+#if G_OS_WIN32
     insert_locales (encodings, "windows-1253", "el", NULL);
-#else
+#else /* !G_OS_WIN32 */
     insert_locales (encodings, "ISO-8859-7", "el", NULL);
-#endif
-#if WIN32
+#endif /* !G_OS_WIN32 */
+#if G_OS_WIN32
     insert_locales (encodings, "windows-1254", "tr", NULL);
-#else
+#else /* !G_OS_WIN32 */
     insert_locales (encodings, "ISO-8859-9", "tr", NULL);
-#endif
+#endif /* !G_OS_WIN32 */
     insert_locales (encodings, "ISO-8859-13", "lt", "lv", "mi", NULL);
     insert_locales (encodings, "ISO-8859-14", "ga", "cy", NULL);
     insert_locales (encodings, "ISO-8859-15", "et", NULL);
-#if WIN32
+#if G_OS_WIN32
     insert_locales (encodings, "windows-1251", "ru", NULL);
-#else
+#else /* !G_OS_WIN32 */
     insert_locales (encodings, "KOI8-R", "ru", NULL);
-#endif
+#endif /* !G_OS_WIN32 */
     insert_locales (encodings, "KOI8-U", "uk", NULL);
     if (check_locale ("TCVN-5712")) {
         insert_locales (encodings, "TCVN-5712", "vi", NULL);
@@ -235,9 +235,9 @@ Charset_Insert_Locales_Init (void)
         insert_locales (encodings, "TCVN", "vi", NULL);
     }
     insert_locales (encodings, "TIS-620", "th", NULL);
-#if WIN32
+#if G_OS_WIN32
     insert_locales (encodings, "windows-1255", "he", NULL);
-#endif
+#endif /* G_OS_WIN32 */
     /*insert_locales (encodings, "VISCII", NULL);*/
 }
 
@@ -499,10 +499,10 @@ filename_to_display (const gchar *string)
         ret = escaped_str;
     }
 
-#ifdef WIN32
-    ET_Win32_Path_Remove_Trailing_Slash(ret);
-    ET_Win32_Path_Replace_Slashes(ret);
-#endif
+#ifdef G_OS_WIN32
+    ET_Win32_Path_Remove_Trailing_Slash (ret);
+    ET_Win32_Path_Replace_Slashes (ret);
+#endif /* G_OS_WIN32 */
 
     return ret;
 }
@@ -597,9 +597,9 @@ gchar *filename_from_display (const gchar *string)
         ret = escaped_str;
     }
 
-#ifdef WIN32
-    //ET_Win32_Path_Replace_Backslashes(ret);
-#endif
+#ifdef G_OS_WIN32
+    //ET_Win32_Path_Replace_Backslashes (ret);
+#endif /* G_OS_WIN32 */
 
     return ret; // We need to catch errors (e.g. temp=NULL) in the real code
 }
@@ -689,7 +689,7 @@ Charset_Get_Name_From_Title (const gchar *charset_title)
 {
     guint i;
 
-    g_return_val_if_fail (charset_title != NULL, "");
+    g_return_val_if_fail (charset_title != NULL, NULL);
 
     for (i = 0; i < CHARSET_TRANS_ARRAY_LEN; i++)
     {
@@ -700,5 +700,5 @@ Charset_Get_Name_From_Title (const gchar *charset_title)
         }
     }
 
-    return "";
+    return NULL;
 }

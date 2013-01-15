@@ -40,49 +40,24 @@
 #include "bar.h"
 #include "charset.h"
 
-#ifdef WIN32
-#   include "win32/win32dep.h"
-#endif
-
-
-/****************
- * Declarations *
- ****************/
+#ifdef G_OS_WIN32
+#include "win32/win32dep.h"
+#endif /* G_OS_WIN32 */
 
 
 /**************
  * Prototypes *
  **************/
 
-void Tag_Area_Picture_Drag_Data (GtkWidget *widget, GdkDragContext *dc,
-                                 gint x, gint y, GtkSelectionData *selection_data,
-                                 guint info, guint t, gpointer data);
-void Picture_Selection_Changed_cb (GtkTreeSelection *selection, gpointer data);
 static void Picture_Load_Filename (gchar *filename, gpointer user_data);
 
-void Picture_Add_Button_Clicked         (GObject *object);
-void Picture_Properties_Button_Clicked  (GObject *object);
-void Picture_Save_Button_Clicked        (GObject *object);
-void Picture_Clear_Button_Clicked       (GObject *object);
-
-Picture_Format Picture_Format_From_Data (Picture *pic);
 static const gchar *Picture_Format_String (Picture_Format format);
 static const gchar *Picture_Type_String (Picture_Type type);
 static gchar *Picture_Info (Picture *pic);
-void           PictureEntry_Clear       (void);
-void           PictureEntry_Update      (Picture *pic, gboolean select_it);
 
-Picture *Picture_Allocate (void);
-Picture *Picture_Copy_One (const Picture *pic);
-Picture *Picture_Copy     (const Picture *pic);
-void     Picture_Free     (Picture *pic);
 static Picture *Picture_Load_File_Data (const gchar *filename);
 static gboolean Picture_Save_File_Data (const Picture *pic,
                                         const gchar *filename);
-
-gboolean Picture_Entry_View_Button_Pressed (GtkTreeView *treeview, GdkEventButton *event, gpointer data);
-gboolean Picture_Entry_View_Key_Pressed    (GtkTreeView *treeview, GdkEvent *event, gpointer data);
-
 
 /*
  * Note :
@@ -1089,34 +1064,38 @@ void Picture_Free (Picture *pic)
 
 
 /*
+ * FIXME: On modern filesystems this is bogus, as GLib assumes that the
+ * encoding is UTF-8 (and that will normally be correct).
+ */
+/*
  * Load the picture represented by the 'filename' (must be passed in
  * file system encoding, not UTF-8)
  */
-#ifdef WIN32
+#ifdef G_OS_WIN32
 static Picture *
 Picture_Load_File_Data (const gchar *filename_utf8)
-#else
+#else /* !G_OS_WIN32 */
 static Picture *
 Picture_Load_File_Data (const gchar *filename)
-#endif
+#endif /* !G_OS_WIN32 */
 {
     Picture *pic;
     gchar *buffer = 0;
     size_t size = 0;
     struct stat st;
 
-#ifdef WIN32
+#ifdef G_OS_WIN32
     // Strange : on Win32, the file seems to be in UTF-8, so we can't load files with accentuated characters...
     // To avoid this problem, we convert the filename to the file system encoding
     gchar *filename = filename_from_display(filename_utf8);
-#endif
+#endif /* G_OS_WIN32 */
 
     if (stat(filename, &st)==-1)
     {
         Log_Print(LOG_ERROR,_("Picture file not loaded (%s)…"),g_strerror(errno));
-#ifdef WIN32
+#ifdef G_OS_WIN32
         g_free(filename);
-#endif
+#endif /* G_OS_WIN32 */
         return NULL;
     }
 
@@ -1144,15 +1123,15 @@ Picture_Load_File_Data (const gchar *filename)
 
         Log_Print(LOG_ERROR,_("Picture file not loaded (%s)…"),g_strerror(errno));
         g_free(filename_utf8);
-#ifdef WIN32
+#ifdef G_OS_WIN32
         g_free(filename);
-#endif
+#endif /* G_OS_WIN32 */
         return FALSE;
     }
 
-#ifdef WIN32
+#ifdef G_OS_WIN32
     g_free(filename);
-#endif
+#endif /* G_OS_WIN32 */
 
     if (fread(buffer, size, 1, fd) != 1)
     {
