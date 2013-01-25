@@ -45,3 +45,5 @@ src/libmpg123/Makefile.in
 src/libmpg123/libmpg123.a
 /src/win32/.deps/
 stamp-h1
+.cproject
+.project
