@@ -339,7 +339,7 @@ Scan_Tag_With_Mask (ET_File *ETFile)
     // Set CRC-32 value as default comment (for files with ID3 tag only ;-)
     if (SET_CRC32_COMMENT && (OVERWRITE_TAG_FIELD || FileTag->comment==NULL || strlen(FileTag->comment)==0 ) )
     {
-        gulong crc32_value = 0;
+        guint32 crc32_value;
         gchar *buffer;
         ET_File_Description *ETFileDescription;
 
@@ -347,11 +347,11 @@ Scan_Tag_With_Mask (ET_File *ETFile)
         switch (ETFileDescription->TagType)
         {
             case ID3_TAG:
-                crc32_file_with_ID3_tag( ((File_Name *)((GList *)ETFile->FileNameNew)->data)->value, &crc32_value);
-
-                if (crc32_value > 0)
+                if (crc32_file_with_ID3_tag (((File_Name *)((GList *)ETFile->FileNameNew)->data)->value,
+                                             &crc32_value))
                 {
-                    buffer = g_strdup_printf("%.8lx",crc32_value);
+                    buffer = g_strdup_printf ("%.8" G_GUINT32_FORMAT,
+                                              crc32_value);
                     ET_Set_Field_File_Tag_Item((void *)&FileTag->comment,buffer);
                     g_free(buffer);
                 }
@@ -2344,8 +2344,8 @@ static gchar
 /******************
  * Scanner Window *
  ******************/
-#include "../pixmaps/black.xpm"
-#include "../pixmaps/blackwhite.xpm"
+#include "data/pixmaps/black.xpm"
+#include "data/pixmaps/blackwhite.xpm"
 void Open_ScannerWindow (gint scanner_type)
 {
     GtkWidget *ScanVBox;
@@ -3348,7 +3348,7 @@ gboolean Scan_Check_Rename_File_Mask (GtkWidget *widget_to_show_hide, GtkEntry *
     // Not a valid path....
     if ( strstr(mask,"//") != NULL
     ||   strstr(mask,"./") != NULL
-    ||   strstr(mask,"../") != NULL)
+    ||   strstr(mask,"data/") != NULL)
         goto Bad_Mask;
 
     while (mask)

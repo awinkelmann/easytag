@@ -45,7 +45,6 @@
 #include "easytag.h"
 #include "et_core.h"
 #include "browser.h"
-#include "base64.h"
 #include "scan.h"
 #include "log.h"
 #include "misc.h"
@@ -2797,7 +2796,7 @@ Cddb_Search_Album_From_Selected_Files (void)
     gulong bytes_read_total = 0;
     FILE  *file = NULL;
 
-    gchar *cddb_in = NULL;               /* For the request to send */
+    gchar *cddb_in = NULL;        /* For the request to send */
     gchar *cddb_out = NULL;       /* Answer received */
     gchar *cddb_out_tmp;
     gchar *msg;
@@ -4128,10 +4127,10 @@ Cddb_Get_Id3_Genre_From_Cddb_Genre (const gchar *cddb_genre)
 }
 
 /* Pixmaps */
-#include "../pixmaps/freedb.xpm"
-#include "../pixmaps/gnudb.xpm"
-#include "../pixmaps/musicbrainz.xpm"
-//#include "../pixmaps/closed_folder.xpm"
+#include "data/pixmaps/freedb.xpm"
+#include "data/pixmaps/gnudb.xpm"
+#include "data/pixmaps/musicbrainz.xpm"
+/*#include "data/pixmaps/closed_folder.xpm"*/
 
 /*
  * Returns the pixmap to display following the server name
@@ -4155,57 +4154,6 @@ Cddb_Get_Pixbuf_From_Server_Name (const gchar *server_name)
 }
 
 
-/*
- * Function taken from gFTP.
- * The standard to Base64 encoding can be found in RFC2045
- */
-/*
-char *base64_encode (char *str)
-{
-    char *newstr, *newpos, *fillpos, *pos;
-    unsigned char table[64], encode[3];
-    int i, num;
-
-    // Build table
-    for (i = 0; i < 26; i++)
-    {
-        table[i] = 'A' + i;
-        table[i + 26] = 'a' + i;
-    }
-
-    for (i = 0; i < 10; i++)
-        table[i + 52] = '0' + i;
-
-    table[62] = '+';
-    table[63] = '/';
-
-
-    num = strlen (str) / 3;
-    if (strlen (str) % 3 > 0)
-        num++;
-    newstr = g_malloc (num * 4 + 1);
-    newstr[num * 4] = '\0';
-    newpos = newstr;
-
-    pos = str;
-    while (*pos != '\0')
-    {
-        memset (encode, 0, sizeof (encode));
-        for (i = 0; i < 3 && *pos != '\0'; i++)
-            encode[i] = *pos++;
-
-        fillpos = newpos;
-        *newpos++ = table[encode[0] >> 2];
-        *newpos++ = table[(encode[0] & 3)   << 4 | encode[1] >> 4];
-        *newpos++ = table[(encode[1] & 0xF) << 2 | encode[2] >> 6];
-        *newpos++ = table[encode[2] & 0x3F];
-        while (i < 3)
-            fillpos[++i] = '=';
-    }
-    return (newstr);
-}
-*/
-
 static gchar *
 Cddb_Format_Proxy_Authentification (void)
 {
@@ -4213,13 +4161,11 @@ Cddb_Format_Proxy_Authentification (void)
 
     if (CDDB_USE_PROXY &&  CDDB_PROXY_USER_NAME != NULL && *CDDB_PROXY_USER_NAME != '\0')
     {
-
-        gchar *tempstr;
+        const gchar *tempstr;
         gchar *str_encoded;
 
         tempstr = g_strconcat(CDDB_PROXY_USER_NAME, ":", CDDB_PROXY_USER_PASSWORD, NULL);
-        //str_encoded = base64_encode(tempstr);
-        base64_encode (tempstr, strlen(tempstr), &str_encoded);
+        str_encoded = g_base64_encode((const guchar *)tempstr, strlen(tempstr));
 
         ret = g_strdup_printf("Proxy-authorization: Basic %s\r\n", str_encoded);
         g_free (str_encoded);

@@ -23,18 +23,21 @@
 #ifndef _WIN32DEP_H_
 #define _WIN32DEP_H_
 
-#include <shlobj.h>
+#include <glib.h> /* Needed for G_OS_WIN32. */
+
+#ifdef G_OS_WIN32
 #include <winsock2.h>
+#include <shlobj.h>
 #include <process.h>
 #include <gtk/gtk.h>
-#include <gdk/gdkevents.h>
+#include <gdk/gdk.h>
+
+G_BEGIN_DECLS
 
 #define lstat stat
 #define mkdir(a,b) mkdir(a)
 #define chown(a,b,c)
 #define chmod(a,b)
-
-
 
 
 /*
@@ -69,7 +72,26 @@ extern void  ET_Win32_Path_Remove_Trailing_Backslash (gchar *path);
 extern void  ET_Win32_Path_Replace_Backslashes       (gchar *path);
 extern void  ET_Win32_Path_Replace_Slashes           (gchar *path);
 
-extern int   mkstemp (char *template);
+#ifndef HAVE_MKSTEMP
+#define et_w32_mkstemp mkstemp
+extern gint et_w32_mkstemp (char *template);
+#endif /* HAVE_MKSTEMP */
+
+#ifndef HAVE_GETTIMEOFDAY
+#define et_w32_gettimeofday gettimeofday
+extern gint et_w32_gettimeofday (struct timeval *tv,
+                                 /*struct timezone */ void *tz);
+#endif /* !HAVE_GETTIMEOFDAY */
+
+#ifndef HAVE_FTRUNCATE
+#define et_w32_ftruncate ftruncate
+extern gint et_w32_ftruncate (gint fd, off_t length);
+#endif /* !HAVE_FTRUNCATE */
+
+#ifndef HAVE_TRUNCATE
+#define et_w32_truncate truncate
+extern gint et_w32_truncate (const gchar *path, off_t length);
+#endif /* !HAVE_TRUNCATE */
 
 /*
  *  MACROS
@@ -78,9 +100,15 @@ extern int   mkstemp (char *template);
 /*
  *  EasyTAG specific
  */
-#define DATADIR   weasytag_install_dir()
-#define LIBDIR    weasytag_lib_dir()
+#undef DATADIR
+#undef LIBDIR
+#undef LOCALEDIR
+#define DATADIR weasytag_install_dir()
+#define LIBDIR weasytag_lib_dir()
 #define LOCALEDIR weasytag_locale_dir()
 
-#endif /* _WIN32DEP_H_ */
+G_END_DECLS
 
+#endif /* G_OS_WIN32 */
+
+#endif /* _WIN32DEP_H_ */

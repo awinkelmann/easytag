@@ -1,4 +1,4 @@
 #include "resource.h"
 
-EASYTAG_ICON			ICON "../pixmaps/easytag.ico"
+EASYTAG_ICON			ICON "data/icons/win32/easytag.ico"
 

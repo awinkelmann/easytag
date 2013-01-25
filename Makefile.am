@@ -15,6 +15,11 @@ easytag_CFLAGS = \
 	$(WARN_CFLAGS) \
 	$(EASYTAG_CFLAGS)
 
+if WINDOWS_HOST
+win32_sources = \
+	src/win32/win32dep.c
+endif
+
 easytag_SOURCES = \
 	src/id3lib/c_wrapper.cpp \
 	src/libapetag/apetaglib.c \
@@ -30,7 +35,6 @@ easytag_SOURCES = \
 	src/about.c \
 	src/ape_tag.c \
 	src/bar.c \
-	src/base64.c \
 	src/browser.c \
 	src/browser.h \
 	src/cddb.c \
@@ -59,7 +63,8 @@ easytag_SOURCES = \
 	src/setting.c \
 	src/vcedit.c \
 	src/wavpack_header.c \
-	src/wavpack_tag.c
+	src/wavpack_tag.c \
+	$(win32_sources)
 
 easytag_headers = \
 	src/id3lib/id3_bugfix.h \
@@ -75,7 +80,6 @@ easytag_headers = \
 	src/about.h \
 	src/ape_tag.h \
 	src/bar.h \
-	src/base64.h \
 	src/cddb.h \
 	src/charset.h \
 	src/crc32.h \
@@ -103,11 +107,20 @@ easytag_headers = \
 	src/ui_manager.h \
 	src/vcedit.h \
 	src/wavpack_header.h \
-	src/wavpack_tag.h
+	src/wavpack_tag.h \
+	src/win32/win32dep.h
 
 easytag_LDADD = \
 	$(EASYTAG_LIBS) \
 	$(ID3LIB_LIBS)
+
+# NSIS installer script.
+# TODO: Run script from dist dir.
+easytag-win32-installer.nsi: easytag-win32-installer.nsi.in Makefile
+	$(AM_V_GEN)$(SED) -e "s|\@PACKAGE_NAME\@|$(PACKAGE_NAME)|" \
+		-e "s|\@PACKAGE_TARNAME\@|$(PACKAGE_TARNAME)|" \
+		-e "s|\@PACKAGE_URL\@|$(PACKAGE_URL)|" \
+		-e "s|\@PACKAGE_VERSION\@|$(PACKAGE_VERSION)|" $< > $@
 
 @INTLTOOL_DESKTOP_RULE@
 desktopdir = $(datadir)/applications
@@ -120,47 +133,59 @@ dist_text_DATA = ChangeLog
 man_MANS = doc/easytag.1
 
 pixmaps = \
-	pixmaps/add_folder.xpm \
-	pixmaps/album.xpm \
-	pixmaps/all_downcase.xpm \
-	pixmaps/all_uppercase.xpm \
-	pixmaps/artist.xpm \
-	pixmaps/artist_album.xpm \
-	pixmaps/black.xpm \
-	pixmaps/blackwhite.xpm \
-	pixmaps/closed_folder_readonly.xpm \
-	pixmaps/closed_folder_unreadable.xpm \
-	pixmaps/closed_folder.xpm \
-	pixmaps/EasyTAG.ico \
-	pixmaps/EasyTAG2.ico \
-	pixmaps/EasyTAG2.xpm \
-	pixmaps/first_letter_uppercase.xpm \
-	pixmaps/first_letter_uppercase_word.xpm \
-	pixmaps/forbidden.xpm \
-	pixmaps/freedb.xpm \
-	pixmaps/gnudb.xpm \
-	pixmaps/grab.xpm \
-	pixmaps/invert_selection.xpm \
-	pixmaps/mask.xpm \
-	pixmaps/musicbrainz.xpm \
-	pixmaps/opened_folder.xpm \
-	pixmaps/parent_folder.xpm \
-	pixmaps/ram_disk.xpm \
-	pixmaps/read_only.xpm \
-	pixmaps/red_lines.xpm \
-	pixmaps/sequence_track.xpm \
-	pixmaps/sound.xpm \
-	pixmaps/unselect_all.xpm
-
-pixmapdir = $(pkgdatadir)
-dist_pixmap_DATA = \
-	pixmaps/EasyTAG_logo.xpm
+	data/pixmaps/add_folder.xpm \
+	data/pixmaps/album.xpm \
+	data/pixmaps/all_downcase.xpm \
+	data/pixmaps/all_uppercase.xpm \
+	data/pixmaps/artist.xpm \
+	data/pixmaps/artist_album.xpm \
+	data/pixmaps/black.xpm \
+	data/pixmaps/blackwhite.xpm \
+	data/pixmaps/closed_folder_readonly.xpm \
+	data/pixmaps/closed_folder_unreadable.xpm \
+	data/pixmaps/closed_folder.xpm \
+	data/pixmaps/first_letter_uppercase.xpm \
+	data/pixmaps/first_letter_uppercase_word.xpm \
+	data/pixmaps/forbidden.xpm \
+	data/pixmaps/freedb.xpm \
+	data/pixmaps/gnudb.xpm \
+	data/pixmaps/grab.xpm \
+	data/pixmaps/invert_selection.xpm \
+	data/pixmaps/mask.xpm \
+	data/pixmaps/musicbrainz.xpm \
+	data/pixmaps/opened_folder.xpm \
+	data/pixmaps/parent_folder.xpm \
+	data/pixmaps/ram_disk.xpm \
+	data/pixmaps/read_only.xpm \
+	data/pixmaps/red_lines.xpm \
+	data/pixmaps/sequence_track.xpm \
+	data/pixmaps/sound.xpm \
+	data/pixmaps/unselect_all.xpm
 
 iconthemedir = $(datadir)/icons/hicolor
 
-appicondir = $(iconthemedir)/64x64/apps
-dist_appicon_DATA = \
-	pixmaps/easytag.png
+appicon16dir = $(iconthemedir)/16x16/apps
+appicon32dir = $(iconthemedir)/32x32/apps
+appicon48dir = $(iconthemedir)/48x48/apps
+appicon64dir = $(iconthemedir)/64x64/apps
+appicon128dir = $(iconthemedir)/128x128/apps
+appicon256dir = $(iconthemedir)/256x256/apps
+appiconscalabledir = $(iconthemedir)/scalable/apps
+
+dist_appicon16_DATA = \
+	data/icons/16x16/easytag.png
+dist_appicon32_DATA = \
+	data/icons/32x32/easytag.png
+dist_appicon48_DATA = \
+	data/icons/48x48/easytag.png
+dist_appicon64_DATA = \
+	data/icons/64x64/easytag.png
+dist_appicon128_DATA = \
+	data/icons/128x128/easytag.png
+dist_appicon256_DATA = \
+	data/icons/256x256/easytag.png
+dist_appiconscalable_DATA = \
+	data/icons/scalable/easytag.svg
 
 UPDATE_ICON_CACHE = gtk-update-icon-cache --ignore-theme-index --force
 
@@ -174,6 +199,7 @@ install-update-icon-cache:
 uninstall-update-icon-cache:
 	$(AM_V_at)$(POST_UNINSTALL)
 	test -n "$(DESTDIR)" || $(UPDATE_ICON_CACHE) "$(iconthemedir)"
+
 dist_doc_DATA = \
 	HACKING \
 	THANKS \
@@ -183,7 +209,6 @@ dist_doc_DATA = \
 dist_noinst_DATA = \
 	$(desktop_in_files) \
 	$(easytag_headers) \
-	Makefile.mingw \
 	src/id3lib/patch_id3lib_3.8.3_UTF16_writing_bug.diff \
 	src/libapetag/COPYING.LGPL \
 	src/libapetag/README.apetag \
@@ -194,22 +219,18 @@ dist_noinst_DATA = \
 	src/win32/gtkwin32dep.c \
 	src/win32/gtkwin32dep.h \
 	src/win32/resource.h \
-	src/win32/win32dep.c \
-	src/win32/win32dep.h \
 	src/win32/win_easytag.c \
-	src/win32/nsis/easytag-header.bmp \
-	src/win32/nsis/easytag-install.bmp \
-	src/win32/nsis/easytag-install.ico \
-	src/win32/nsis/easytag-uninstall.bmp \
+	data/icons/win32/easytag.ico \
+	data/nsis/easytag-header.bmp \
+	data/nsis/easytag-install.bmp \
+	data/nsis/easytag-install.ico \
+	data/nsis/easytag-uninstall.bmp \
 	$(pixmaps) \
 	\
 	easytag.spec \
-	easytag-win32-installer.nsi \
+	easytag-win32-installer.nsi.in \
 	\
-	config.h.mingw \
-	Makefile.mingw \
 	README_win32.txt \
-	po/Makefile.mingw \
 	\
 	doc/easytag.1.in \
 	doc/EasyTAG_Documentation.html \
@@ -289,7 +310,8 @@ dist_noinst_SCRIPTS = \
 	autogen.sh
 
 CLEANFILES = \
-	$(desktop_DATA)
+	$(desktop_DATA) \
+	easytag-win32-installer.nsi
 
 DISTCLEANFILES = \
 	$(man_MANS) \

@@ -34,6 +34,7 @@
 #endif
 #include "apetaglib.h"
 #include "../genres.h"
+#include "../win32/win32dep.h"
 
 #include "is_tag.h"
 #ifdef ID3V2_READ
@@ -864,29 +865,6 @@ libapetag_qsort (struct tag **a, struct tag **b)
         return -1;
 }
 
-#ifdef USE_CHSIZE
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <io.h>
-/* on winblows we don't have truncate (and ftruncate) but have chsize() */
-void
-truncate (char *filename, size_t fileSize)
-{
-    int handle;
-
-    handle = open (filename, O_RDWR | O_CREAT,
-            S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
-    if (handle != -1) {
-        if (chsize (handle, fileSize) != 0) {
-            PRINT_ERR ("Error truncatng file\n");
-        }
-        close (handle);
-    }
-
-}
-
-#endif
-
 /*
     PL: domyslne %flag% = APE_TAG_V2 + SAVE_NEW_OLD_APE_TAG
 */
@@ -918,7 +896,7 @@ apetag_save (char *filename, apetag *mem_cnt, int flag)
     struct tag **mTag;
     size_t tagSSize = 32;
     int n;
-    char temp[4];
+    unsigned char temp[4];
     
     if (mem_cnt==NULL) {
         PRINT_ERR("ERROR->apetaglib>apetag_save::apetag_init()\n");

@@ -85,23 +85,19 @@ static gint SF_ButtonPressed_Delete_File;
 
 #ifdef ENABLE_FLAC
     #include <FLAC/metadata.h>
-
-    /* Patch from Josh Coalson
-     * FLAC 1.1.3 has FLAC_API_VERSION_CURRENT == 8 *
-     * by LEGACY_FLAC we mean pre-FLAC 1.1.3; in FLAC 1.1.3 the FLAC__FileDecoder was merged into the FLAC__StreamDecoder */
-    #if !defined(FLAC_API_VERSION_CURRENT) || FLAC_API_VERSION_CURRENT < 8
-    #define LEGACY_FLAC // For FLAC version < 1.1.3
-    #else
-    #undef LEGACY_FLAC
-    #endif
 #endif
 
 
 /**************
  * Prototypes *
  **************/
+#ifdef G_OS_WIN32
+int easytag_main (struct HINSTANCE__ *hInstance, int argc, char *argv[]);
+#endif /* G_OS_WIN32 */
+#ifndef G_OS_WIN32
 static void Handle_Crash (gint signal_id);
 static const gchar *signal_to_string (gint signal);
+#endif /* !G_OS_WIN32 */
 
 static GtkWidget *Create_Browser_Area (void);
 static GtkWidget *Create_File_Area    (void);
@@ -173,11 +169,7 @@ setup_sigchld (void)
 /********
  * Main *
  ********/
-#ifdef G_OS_WIN32
-int easytag_main (struct HINSTANCE__ *hInstance, int argc, char *argv[]) /* entry point of DLL */
-#else /* !G_OS_WIN32 */
 int main (int argc, char *argv[])
-#endif /* !G_OS_WIN32 */
 {
     GtkWidget *MainVBox;
     GtkWidget *HBox, *VBox;
@@ -561,7 +553,7 @@ Create_File_Area (void)
     return FileFrame;
 }
 
-#include "../pixmaps/sequence_track.xpm"
+#include "data/pixmaps/sequence_track.xpm"
 static GtkWidget *
 Create_Tag_Area (void)
 {
@@ -4360,7 +4352,6 @@ void Tag_Area_Display_Controls (ET_File *ETFile)
             gtk_widget_show(GTK_WIDGET(EncodedByLabel));
             gtk_widget_show(GTK_WIDGET(EncodedByEntry));
             gtk_widget_show(GTK_WIDGET(EncodedByMButton));
-            #ifndef LEGACY_FLAC // Picture supported for FLAC >= 1.1.3...
             gtk_widget_show(GTK_WIDGET(PictureLabel));
             gtk_widget_show(GTK_WIDGET(PictureScrollWindow));
             gtk_widget_show(GTK_WIDGET(PictureMButton));
@@ -4368,27 +4359,6 @@ void Tag_Area_Display_Controls (ET_File *ETFile)
             gtk_widget_show(GTK_WIDGET(PictureAddButton));
             gtk_widget_show(GTK_WIDGET(PictureSaveButton));
             gtk_widget_show(GTK_WIDGET(PicturePropertiesButton));
-            #else
-            if (WRITE_ID3_TAGS_IN_FLAC_FILE)
-            {
-                gtk_widget_show(GTK_WIDGET(PictureLabel));
-                gtk_widget_show(GTK_WIDGET(PictureScrollWindow));
-                gtk_widget_show(GTK_WIDGET(PictureMButton));
-                gtk_widget_show(GTK_WIDGET(PictureClearButton));
-                gtk_widget_show(GTK_WIDGET(PictureAddButton));
-                gtk_widget_show(GTK_WIDGET(PictureSaveButton));
-                gtk_widget_show(GTK_WIDGET(PicturePropertiesButton));
-            }else
-            {
-                gtk_widget_hide(GTK_WIDGET(PictureLabel));
-                gtk_widget_hide(GTK_WIDGET(PictureScrollWindow));
-                gtk_widget_hide(GTK_WIDGET(PictureMButton));
-                gtk_widget_hide(GTK_WIDGET(PictureClearButton));
-                gtk_widget_hide(GTK_WIDGET(PictureAddButton));
-                gtk_widget_hide(GTK_WIDGET(PictureSaveButton));
-                gtk_widget_hide(GTK_WIDGET(PicturePropertiesButton));
-            }
-            #endif
             break;
 #endif
 
@@ -4846,6 +4816,7 @@ void Attach_Popup_Menu_To_Tag_Entries (GtkEntry *entry)
  * Function to manage the received signals (specially for segfaults)
  * Handle crashs
  */
+#ifndef G_OS_WIN32
 static void
 Handle_Crash (gint signal_id)
 {
@@ -4994,6 +4965,7 @@ signal_to_string (gint signal)
 #endif
     return (_("Unknown signal"));
 }
+#endif /* !G_OS_WIN32 */
 
 
 /*

@@ -32,6 +32,7 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CXX
 AC_PROG_CXXCPP
+AC_PROG_SED
 PKG_PROG_PKG_CONFIG([0.24])
 
 dnl -------------------------------
@@ -102,11 +103,11 @@ AC_CHECK_LIB([socket], [recv])
 
 
 dnl ################################################
-dnl # Ogg Vorbis libraries (rq : needed also for libFLAC)
+dnl # Ogg Vorbis libraries
 dnl ################################################
 
 OGG_DEPS="ogg >= 1.0 vorbis >= 1.0.1 vorbisfile"
-AS_IF([test "x$enable_ogg" != "xno" -o "x$enable_flac" != "xno"],
+AS_IF([test "x$enable_ogg" != "xno"],
       [PKG_CHECK_EXISTS([$OGG_DEPS], [have_ogg=yes], [have_ogg=no])],
       [have_ogg=no])
 
@@ -120,7 +121,6 @@ dnl ################################################
 dnl # libSpeex library
 dnl ################################################
 dnl check for system libspeex
-dnl Note that libvorbis is required for speex support, even if the user chooses --disable-ogg
 
 SPEEX_DEPS="speex"
 AS_IF([test "x$enable_speex" != "xno"],
@@ -137,9 +137,8 @@ dnl ################################################
 dnl # libFLAC library
 dnl ################################################
 dnl check for system libflac
-dnl Note that libvorbis is required for flac support, even if the user chooses --disable-ogg
 
-FLAC_DEPS="flac >= 1.1.0"
+FLAC_DEPS="flac >= 1.1.4"
 AS_IF([test "x$enable_flac" != "xno"],
       [PKG_CHECK_EXISTS([$FLAC_DEPS], [have_flac=yes], [have_flac=no])],
       [have_flac=no])
@@ -229,6 +228,16 @@ dnl Check the pkg-config dependencies
 GIO_DEPS="gio-2.0 >= 2.32.0" dnl For g_file_new_tmp()
 PKG_CHECK_MODULES([EASYTAG], [$GIO_DEPS $GTK_DEPS $OGG_DEPS $SPEEX_DEPS $FLAC_DEPS $ID3TAG_DEPS $TAGLIB_DEPS $WAVPACK_DEPS])
 
+dnl Check for winsock
+AC_SEARCH_LIBS([gethostbyname], [nsl socket], [],
+    [saved_LIBS=$LIBS
+     LIBS="-lws2_32 $LIBS"
+     AC_MSG_CHECKING([for gethostbyname in ws2_32])
+     AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <winsock2.h>]],
+        [[gethostbyname ("");]])],
+        [have_ws2=yes], [have_ws2=no LIBS=$saved_LIBS])
+     AC_MSG_RESULT([$have_ws2])])
+
 dnl Check that the compiler accepts the given warning flags.
 warning_flags="-Wall -Wstrict-prototypes -Wnested-externs -Werror=missing-prototypes -Werror=implicit-function-declaration -Werror=pointer-arith -Werror=init-self -Werror=format-security -Werror=format=2 -Werror=missing-include-dirs"
 
@@ -264,7 +273,6 @@ AC_HEADER_DIRENT
 dnl -------------------------------
 dnl Checks for typedefs, structures, and compiler characteristics.
 dnl -------------------------------
-AC_TYPE_MODE_T
 AC_TYPE_PID_T
 AC_TYPE_SIZE_T
 
@@ -272,10 +280,7 @@ AC_TYPE_SIZE_T
 dnl -------------------------------
 dnl Checks for library functions.
 dnl -------------------------------
-AC_FUNC_FORK
-AC_CHECK_FUNCS(mkdir strstr strtol mkstemp)
-AC_SEARCH_LIBS([strerror], [cposix])
-
+AC_CHECK_FUNCS([ftruncate gettimeofday mkstemp truncate])
 
 AC_CONFIG_FILES([ Makefile
                   easytag.spec

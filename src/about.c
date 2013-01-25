@@ -30,6 +30,7 @@ void Show_About_Window (void)
 {
     static const gchar * const artists[] =
     {
+        "Waqas Qamar <wakas88@gmail.com>",
         "Der Humph <humph@gmx.de>",
         NULL
     };
@@ -68,6 +69,7 @@ void Show_About_Window (void)
         "Honore Doktorr <hdfssk@gmail.com>",
         "Guilherme Destefani <gd@helixbrasil.com.br>",
         "Andreas Winkelmann <ml@awinkelmann.de>",
+        "Adrian Bunk <bunk@stusta.de>",
         NULL
     };
 
