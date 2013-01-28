@@ -81,8 +81,8 @@ static void   Id3tag_delete_txxframes   (struct id3_tag *tag, const gchar *param
 static struct id3_frame *Id3tag_find_and_create_frame    (struct id3_tag *tag, const gchar *name);
 static int    id3taglib_set_field       (struct id3_frame *frame, const gchar *str, enum id3_field_type type, int num, int clear, int id3v1);
 static int    etag_set_tags             (const gchar *str, const char *frame_name, enum id3_field_type field_type, struct id3_tag *v1tag, struct id3_tag *v2tag, gboolean *strip_tags);
-static int etag_write_tags (const gchar *filename, struct id3_tag const *v1tag,
-                            struct id3_tag const *v2tag, gboolean strip_tags);
+static int etag_write_tags (const gchar *filename, struct id3_tag *v1tag,
+                            struct id3_tag *v2tag, gboolean strip_tags);
 
 /*************
  * Functions *
@@ -1325,8 +1325,8 @@ etag_set_tags (const gchar *str,
 
 static int
 etag_write_tags (const gchar *filename, 
-                 struct id3_tag const *v1tag,
-                 struct id3_tag const *v2tag,
+                 struct id3_tag *v1tag,
+                 struct id3_tag *v2tag,
                  gboolean strip_tags)
 {
     id3_byte_t *v1buf, *v2buf;
