@@ -145,22 +145,21 @@ typedef enum
 /*
  * Description of each item of the FileNameList list
  */
-typedef struct _File_Name File_Name;
-struct _File_Name
+typedef struct /* File_Name */
 {
     guint key;
     gboolean saved;        /* Set to TRUE if this filename had been saved */
     gchar *value;          /* The filename containing the full path and the extension of the file */
     gchar *value_utf8;     /* Same than "value", but converted to UTF-8 to avoid multiple call to the convertion function */
     gchar *value_ck;       /* Collate key of "value_utf8" to speed up comparaison */
-};
+} File_Name;
 
 
 /*
- * Description of Picture item (see picture.h)
+ * Description of Picture item
  */
-typedef struct _Picture Picture;
-struct _Picture
+typedef struct Picture Picture;
+struct Picture
 {
     gint     type;
     gchar   *description;
@@ -175,8 +174,7 @@ struct _Picture
 /*
  * Description of each item of the TagList list
  */
-typedef struct _File_Tag File_Tag;
-struct _File_Tag
+typedef struct /* File_Tag */
 {
     guint key;             /* Incremented value */
     gboolean saved;        /* Set to TRUE if this tag had been saved */
@@ -199,15 +197,14 @@ struct _File_Tag
     gchar *compilation;		/* Compilation Flag (TCMP) used by Amarok */
     Picture *picture;      /* Picture */
     GList *other;          /* List of unsupported fields (used for ogg only) */
-};
+} File_Tag;
 
 
 /*
  * Structure containing informations of the header of file
  * Nota: This struct was copied from an "MP3 structure", and will change later.
  */
-typedef struct _ET_File_Info ET_File_Info;
-struct _ET_File_Info
+typedef struct /* ET_File_Info */
 {
     gint version;               /* Version of bitstream (mpeg version for mp3, encoder version for ogg) */
     gint mpeg25;                /* Version is MPEG 2.5? */
@@ -220,20 +217,19 @@ struct _ET_File_Info
     gint duration;              /* The duration of file (in seconds) */
     gchar *mpc_profile;         /* MPC data */
     gchar *mpc_version;         /* MPC data : encoder version  (also for Speex) */
-};
+} ET_File_Info;
 
 
 /*
  * Structure for descripting supported files
  */
-typedef struct _ET_File_Description ET_File_Description;
-struct _ET_File_Description
+
+typedef struct /* ET_File_Description */
 {
     ET_File_Type FileType;    /* Type of file (ex: MP3) */
     gchar       *Extension;   /* Extension (ex: ".mp3") */
     ET_Tag_Type  TagType;     /* Type of tag (ex: ID3) */
-};
-
+} ET_File_Description;
 
 /*
  * Description of supported files
@@ -280,8 +276,7 @@ static const ET_File_Description ETFileDescription[] =
 /*
  * Description of each item of the ETFileList list
  */
-typedef struct _ET_File ET_File;
-struct _ET_File
+typedef struct /* ET_File */
 {
     guint IndexKey;           /* Value used to display the position in the list (and in the BrowserList) - Must be renumered after resorting the list - This value varies when resorting list */
 
@@ -302,26 +297,23 @@ struct _ET_File
     GList *FileTagList;       /* Contains the history of changes about file tag data */
     GList *FileTagListBak;    /* Contains items of FileTagList removed by 'undo' procedure but have data currently saved */
     
-};
+} ET_File;
 
 
 
 /*
  * Description of each item of the ETHistoryFileList list
  */
-typedef struct _ET_History_File ET_History_File;
-struct _ET_History_File
+typedef struct /* ET_History_File */
 {
     ET_File *ETFile;           /* Pointer to item of ETFileList changed */
-};
-
+} ET_History_File;
 
 
 /*
  * Description of all variables, lists needed by EasyTAG
  */
-typedef struct _ET_Core ET_Core;
-struct _ET_Core
+typedef struct /* ET_Core */
 {
     // The main list of files
     GList *ETFileList;                  // List of ALL FILES (ET_File) loaded in the directory and sub-directories (List of ET_File) (This list musn't be altered, and points always to the first item)
@@ -343,7 +335,7 @@ struct _ET_Core
 
     // History list
     GList *ETHistoryFileList;           // History list of files changes for undo/redo actions
-};
+} ET_Core;
 
 ET_Core *ETCore;    // Main pointer to structure needed by EasyTAG
 
