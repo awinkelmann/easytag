@@ -193,7 +193,6 @@ static void Load_Filename_Edit_Text_Line (GtkTreeSelection *selection,
 
 static void Create_Xpm_Icon_Factory (const char **xpm_data,
                                      const char *name_in_factory);
-void Create_Png_Icon_Factory (const char *png_file, const char *name_in_factory);
 
 /* Browser */
 static void Open_File_Selection_Window (GtkWidget *entry, gchar *title, GtkFileChooserAction action);
